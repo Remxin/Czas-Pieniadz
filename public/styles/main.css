@@ -1,11 +1,18 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
 }
 
 h1 {
   color: purple;
-  font-size: large;
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 700;
+  margin: 0 0 1rem;
 }
 
 nav {
@@ -41,10 +48,21 @@ nav > div.container ul > li > a {
   display: flex;
 }
 
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1rem 1rem;
+}
+
+.page > .layout {
+  min-height: calc(100vh - 6rem);
+}
+
 main {
   background-color: antiquewhite;
   width: 70%;
-  height: calc(100vh - 6rem);
+  min-height: calc(100vh - 6rem);
+  padding: 1.25rem 1.5rem;
 }
 
 .display-mobile {
@@ -54,11 +72,16 @@ main {
 aside {
   background-color: aqua;
   width: 30%;
+  padding: 1.25rem 1.5rem;
 }
 
 footer {
   background-color: green;
   width: 100%;
+  margin-top: 0;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  text-align: center;
 }
 
 .layout {
@@ -71,10 +94,17 @@ footer {
   nav div.container ul {
     display: none;
   }
-  
-  aside, main {
+
+  aside,
+  main {
     width: 100%;
+    min-height: auto;
   }
+
+  .page > .layout {
+    min-height: auto;
+  }
+
   .display-mobile {
     display: block;
   }

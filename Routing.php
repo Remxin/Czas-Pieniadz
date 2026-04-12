@@ -10,6 +10,10 @@ class Routing {
             "controller" => "SecurityController",
             "action" => "login"
         ],
+        "register" => [
+            "controller" => "SecurityController",
+            "action" => "register"
+        ],
         "dashboard" => [
             "controller" => "DashboardController",
             "action" => "index"
@@ -48,6 +52,11 @@ class Routing {
         // Handle /login
         else if ($path === 'login') {
             $routeKey = 'login';
+            $matched = true;
+        } 
+        // Handle /register
+        else if ($path === 'register') {
+            $routeKey = 'register';
             $matched = true;
         } 
         // Handle /

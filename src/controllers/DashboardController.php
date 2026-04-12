@@ -1,6 +1,7 @@
 <?php
 
 require_once 'AppController.php';
+require_once __DIR__.'/../repositories/UsersRepository.php';
 
 class DashboardController extends AppController {
 
@@ -9,6 +10,9 @@ class DashboardController extends AppController {
         // wstawianie zmiennych na widok
 
         $title = "INDEX";
-        return $this->render("index", ["title" => $title]);
+
+        $usersRepository = new UsersRepository();
+        $users = $usersRepository->getUsers();
+        return $this->render("index", ["title" => $title, "users" => $users]);
     }
 }

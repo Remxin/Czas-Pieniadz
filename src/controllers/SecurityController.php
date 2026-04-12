@@ -9,21 +9,29 @@ class SecurityController extends AppController {
         // TODO sprawdzeie czy user istnieje
 
         if ($this->isPost()) {
-            // return $this->render("dashboard");
-
+            $email = $_POST["email"] ?? '';
+            $password = $_POST["password"] ?? '';
+    
+    // var_dump($email);
+    
+            if (empty($email) || empty($password)) {
+                return $this->render('login', ['messages' => 'Fill all fields']);
+            }
+    
             $usersRepository = new UsersRepository();
             $user = $usersRepository->getUserByEmail($_POST['email']);
             if (!$user) {
                 return $this->render("login", ["messages" => "User not found"]);
             }
-
-            if ($user['password'] !== $_POST['password']) {
-                return $this->render("login", ["messages" => "Invalid password"]);
+          
+            if (!password_verify($password, $user['password'])) {
+                return $this->render('login', ['messages' => 'Wrong password']);
             }
-            //
-
+    
+    
             $url = "http://$_SERVER[HTTP_HOST]";
             header("Location: {$url}/dashboard");
+    
         }
 
         return $this->render("login");
@@ -31,6 +39,15 @@ class SecurityController extends AppController {
 
     public function register() {
         if ($this->isPost()) {
+
+            $email = trim($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+            $username = $_POST['username'] ?? '';
+    
+            if (empty($email) || empty($password) || empty($username)) {
+                return $this->render('register', ['messages' => 'Fill all fields']);
+            }
+
             $usersRepository = new UsersRepository();
 
             $user = $usersRepository->getUserByEmail($_POST['email']);
@@ -38,10 +55,12 @@ class SecurityController extends AppController {
                 return $this->render("register", ["messages" => "User already exists"]);
             }
 
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
             $usersRepository->createUser(
-                $_POST['email'],
-                $_POST['password'],
-                $_POST['username']
+                $email,
+                $hashedPassword,
+                $username,
             );
 
             $url = "http://$_SERVER[HTTP_HOST]";

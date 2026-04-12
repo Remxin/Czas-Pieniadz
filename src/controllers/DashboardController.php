@@ -11,7 +11,7 @@ class DashboardController extends AppController {
 
         $title = "INDEX";
 
-        $usersRepository = new UsersRepository();
+        $usersRepository = UsersRepository::getInstance();
         $users = $usersRepository->getUsers();
         return $this->render("index", ["title" => $title, "users" => $users]);
     }

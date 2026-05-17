@@ -74,10 +74,10 @@ class AppController
         $templatePath = 'public/views/'. $template.'.html';
         $templatePath404 = 'public/views/404.html';
         $output = "";
-                 
-        if(file_exists($templatePath)){
+
+        if (file_exists($templatePath)) {
             extract($variables);
-            
+
             ob_start();
             include $templatePath;
             $output = ob_get_clean();

@@ -66,15 +66,25 @@ class SecurityController extends AppController {
 
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
+        $password2 = $_POST['password2'] ?? '';
         $username = $_POST['username'] ?? '';
 
         if (empty($email) || empty($password) || empty($username)) {
             return $this->render('register', ['messages' => 'Fill all fields']);
         }
 
+        $passwordError = $this->validatePasswordStrength($password);
+        if ($passwordError !== null) {
+            return $this->render('register', ['messages' => $passwordError]);
+        }
+
+        if ($password !== $password2) {
+            return $this->render('register', ['messages' => 'Passwords do not match']);
+        }
+
         $usersRepository = UsersRepository::getInstance();
 
-        $user = $usersRepository->getUserByEmail($_POST['email']);
+        $user = $usersRepository->getUserByEmail($email);
         if ($user) {
             return $this->render("register", ["messages" => "User already exists"]);
         }
@@ -89,5 +99,20 @@ class SecurityController extends AppController {
 
         $url = "http://$_SERVER[HTTP_HOST]";
         header("Location: {$url}/login");
+    }
+
+    /**
+     * @return non-empty-string|null Error message, or null if valid.
+     */
+    private function validatePasswordStrength(string $password): ?string
+    {
+        $len = strlen($password);
+        if ($len < 4) {
+            return 'Password must be at least 4 characters long.';
+        }
+        if ($len > 72) {
+            return 'Password must be at most 72 characters long.';
+        }
+        return null;
     }
 }

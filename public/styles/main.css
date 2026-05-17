@@ -90,6 +90,10 @@ footer {
   flex-wrap: wrap;
 }
 
+.no-valid {
+  border-color: tomato;
+}
+
 @media screen and (max-width: 700px) {
   nav div.container ul {
     display: none;

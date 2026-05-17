@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <?php include __DIR__ . '/partials/head.html'; ?>
+  </head>
+  <body>
+    <form method="POST" action="\register">
+      <h1>REGISTER FORM</h1>
+
+      <?php if(isset($messages)): ?>
+
+      <p class="messages">
+        <?= $messages ?>
+      </p>
+
+      <?php endif; ?>
+      <input name="username" type="text" placeholder="Username" />
+      <input name="email" type="email" placeholder="Email" />
+      <input name="password" type="password" placeholder="Password" />
+      <input name="password2" type="password" placeholder="Repeat Password" />
+
+      <button type="submit">REGISTER</button>
+    </form>
+  </body>
+</html>

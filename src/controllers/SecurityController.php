@@ -7,6 +7,11 @@ class SecurityController extends AppController {
 
     public function login() {
         if (!$this->isPost()) {
+            if ($this->getJwtPayload() !== null) {
+                $url = "http://$_SERVER[HTTP_HOST]/dashboard";
+                header("Location: {$url}");
+                exit;
+            }
             return $this->render("login");
         }
 
@@ -27,10 +32,31 @@ class SecurityController extends AppController {
             return $this->render('login', ['messages' => 'Wrong password']);
         }
 
+        $jwt = JwtService::encode([
+            'sub' => (string) $user['id'],
+            'email' => $user['email'],
+        ]);
+
+        setcookie(
+            $this->jwtCookieName(),
+            $jwt,
+            $this->authCookieOptions(time() + (defined('JWT_TTL') ? (int) JWT_TTL : 604800))
+        );
 
         $url = "http://$_SERVER[HTTP_HOST]";
         header("Location: {$url}/dashboard");
+        exit;
+    }
 
+    public function logout() {
+        setcookie(
+            $this->jwtCookieName(),
+            '',
+            $this->authCookieOptions(time() - 3600)
+        );
+        $url = "http://$_SERVER[HTTP_HOST]/login";
+        header("Location: {$url}");
+        exit;
     }
 
     public function register() {

@@ -14,6 +14,10 @@ class Routing {
             "controller" => "SecurityController",
             "action" => "register"
         ],
+        "logout" => [
+            "controller" => "SecurityController",
+            "action" => "logout"
+        ],
         "dashboard" => [
             "controller" => "DashboardController",
             "action" => "index"
@@ -58,6 +62,11 @@ class Routing {
         else if ($path === 'register') {
             $routeKey = 'register';
             $matched = true;
+        }
+        // Handle /logout
+        else if ($path === 'logout') {
+            $routeKey = 'logout';
+            $matched = true;
         } 
         // Handle /
         else if ($path === '') {
@@ -69,7 +78,11 @@ class Routing {
             $controller = self::$routes[$routeKey]["controller"];
             $action = self::$routes[$routeKey]["action"];
             $controllerObj = self::getControllerInstance($controller);
-            $controllerObj->$action($id);
+            if ($routeKey === 'dashboard') {
+                $controllerObj->$action($id);
+            } else {
+                $controllerObj->$action();
+            }
         } else {
             include 'public/views/404.html';
         }

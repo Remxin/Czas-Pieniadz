@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . '/../services/JwtService.php';
 
-class AppController {
+class AppController
+{
     protected function isGet(): bool
     {
         return $_SERVER["REQUEST_METHOD"] === 'GET';
@@ -11,7 +13,62 @@ class AppController {
     {
         return $_SERVER["REQUEST_METHOD"] === 'POST';
     }
- 
+
+    protected function isConnectionSecure(): bool
+    {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443);
+    }
+
+    /**
+     * @return array{expires: int, path: string, secure: bool, httponly: bool, samesite: string}
+     */
+    protected function authCookieOptions(int $expiresTimestamp): array
+    {
+        return [
+            'expires' => $expiresTimestamp,
+            'path' => '/',
+            'secure' => $this->isConnectionSecure(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ];
+    }
+
+    protected function jwtCookieName(): string
+    {
+        return defined('JWT_COOKIE_NAME') ? JWT_COOKIE_NAME : 'auth_token';
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function getJwtPayload(): ?array
+    {
+        $token = $_COOKIE[$this->jwtCookieName()] ?? '';
+        if ($token === '') {
+            return null;
+        }
+        try {
+            return JwtService::decode($token);
+        } catch (RuntimeException) {
+            return null;
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function requireAuth(): array
+    {
+        $payload = $this->getJwtPayload();
+        if ($payload === null) {
+            $url = "http://{$_SERVER['HTTP_HOST']}/login";
+            header("Location: {$url}");
+            exit;
+        }
+        return $payload;
+    }
+
     protected function render(string $template = null, array $variables = [])
     {
         $templatePath = 'public/views/'. $template.'.html';

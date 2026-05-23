@@ -1,26 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
   <head>
-    <?php include __DIR__ . '/partials/head.html'; ?>
+    <?php include __DIR__ . '/partials/head-auth.html'; ?>
+    <title>Rejestracja – Czas ↔ Pieniądz</title>
+    <script src="/public/scripts/auth.js" defer></script>
     <script src="/public/scripts/validation.js" defer></script>
   </head>
-  <body>
-    <form method="POST" action="/register">
-      <h1>REGISTER FORM</h1>
-
-      <?php if(isset($messages)): ?>
-
-      <p class="messages">
-        <?= $messages ?>
-      </p>
-
-      <?php endif; ?>
-      <input name="username" type="text" placeholder="Username" />
-      <input name="email" type="email" placeholder="Email" />
-      <input name="password" type="password" placeholder="Password" />
-      <input name="password2" type="password" placeholder="Repeat Password" />
-
-      <button type="submit">REGISTER</button>
-    </form>
+  <body class="auth-page">
+    <div class="auth-layout">
+      <?php
+        $authCtaHref = '/login';
+        $authCtaLabel = 'Zaloguj się';
+        include __DIR__ . '/partials/auth/header-desktop.html';
+      ?>
+      <main class="auth-main">
+        <div class="auth-card">
+          <header class="auth-card__header">
+            <h2 class="auth-card__title">Zarejestruj się</h2>
+            <p class="auth-card__subtitle">
+              Zacznij przeliczać wydatki na godziny swojego życia.
+            </p>
+          </header>
+          <?php include __DIR__ . '/partials/auth/form-register.html'; ?>
+        </div>
+      </main>
+      <?php include __DIR__ . '/partials/auth/footer.html'; ?>
+    </div>
   </body>
 </html>

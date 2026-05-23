@@ -22,6 +22,14 @@ class Routing {
             "controller" => "DashboardController",
             "action" => "index"
         ],
+        "settings" => [
+            "controller" => "DashboardController",
+            "action" => "settings"
+        ],
+        "history" => [
+            "controller" => "DashboardController",
+            "action" => "history"
+        ],
         "" => [
             "controller" => "SecurityController",
             "action" => "login"
@@ -52,7 +60,17 @@ class Routing {
         else if ($path === 'dashboard') {
             $routeKey = 'dashboard';
             $matched = true;
-        } 
+        }
+        // Handle /settings
+        else if ($path === 'settings') {
+            $routeKey = 'settings';
+            $matched = true;
+        }
+        // Handle /history
+        else if ($path === 'history') {
+            $routeKey = 'history';
+            $matched = true;
+        }
         // Handle /login
         else if ($path === 'login') {
             $routeKey = 'login';

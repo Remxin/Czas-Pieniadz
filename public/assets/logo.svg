@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150" width="100%" height="100%">
+  <g transform="translate(250, 75)" text-anchor="middle" dominant-baseline="central">
+    <g transform="translate(-170, 0)">
+      <path d="M-18,-25 L18,-25 M-18,25 L18,25 M-14,-25 L-14,-20 C-14,-5 -2,0 -2,0 C-2,0 -14,5 -14,20 L-14,25 M14,-25 L14,-20 C14,-5 2,0 2,0 C2,0 14,5 14,20 L14,25" 
+            fill="none" stroke="#5cb39f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-10,-20 L10,-20 C8,-10 0,-4 0,-4 C0,-4 -8,-10 -10,-20 Z" fill="#5cb39f" opacity="0.3"/>
+      <path d="M-10,20 L10,20 C8,10 0,4 0,4 C0,4 -8,10 -10,20 Z" fill="#5cb39f"/>
+    </g>
+
+    <text x="-70" y="2" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="38" fill="#ffffff" text-anchor="middle">Czas</text>
+
+    <g transform="translate(-5, 0)">
+      <path d="M-12,0 L12,0 M-7,-5 L-12,0 L-7,5 M7,-5 L12,0 L7,5" 
+            fill="none" stroke="#5cb39f" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <text x="95" y="2" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="38" fill="#ffffff" text-anchor="middle">Pieniądz</text>
+  </g>
+</svg>

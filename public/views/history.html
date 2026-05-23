@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <?php include __DIR__ . '/partials/app/head-app.html'; ?>
+    <title>Historia wydatków – Czas ↔ Pieniądz</title>
+    <script src="/public/scripts/app.js" defer></script>
+  </head>
+  <body class="app-page">
+    <div class="app-layout">
+      <?php
+        $appNavActive = 'history';
+        include __DIR__ . '/partials/app/header.html';
+      ?>
+      <main class="app-main">
+        <div class="app-toolbar">
+          <header class="app-page-header" style="margin-bottom: 0;">
+            <h1 class="app-page-header__title">Historia wydatków</h1>
+            <p class="app-page-header__subtitle">
+              Śledź wydatki, widząc ile godzin życia kosztuje każdy zakup.
+            </p>
+          </header>
+          <div class="app-toolbar__filters">
+            <label class="app-search">
+              <span class="auth-label app-label--upper">Szukaj</span>
+              <div class="app-search__wrap">
+                <span class="app-search__icon material-symbols-outlined" aria-hidden="true">search</span>
+                <input class="app-search__input" type="search" placeholder="Szukaj wydatków…" />
+              </div>
+            </label>
+            <div class="auth-field app-filter-field">
+              <label class="auth-label app-label--upper" for="filter-month">Filtruj miesiąc</label>
+              <select class="auth-select" id="filter-month" name="month">
+                <option value="october">Październik 2023</option>
+                <option value="september">Wrzesień 2023</option>
+                <option value="august">Sierpień 2023</option>
+                <option value="all">Cała historia</option>
+              </select>
+            </div>
+            <button class="app-icon-btn" type="button" aria-label="Filtry">
+              <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th scope="col">Nazwa wydatku</th>
+                <th scope="col">Koszt</th>
+                <th scope="col">Godziny życia</th>
+                <th scope="col">Data</th>
+                <th scope="col">Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="app-table__name-cell">
+                    <span class="app-table__icon app-table__icon--blue material-symbols-outlined" aria-hidden="true">laptop_mac</span>
+                    MacBook Pro M3
+                  </div>
+                </td>
+                <td class="app-table__mono">11 499,00 PLN</td>
+                <td>
+                  <span class="app-badge-hours">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    142h
+                  </span>
+                </td>
+                <td>24 paź 2023</td>
+                <td>
+                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="app-table__name-cell">
+                    <span class="app-table__icon app-table__icon--orange material-symbols-outlined" aria-hidden="true">local_cafe</span>
+                    Kawa i muffinka
+                  </div>
+                </td>
+                <td class="app-table__mono">45,00 PLN</td>
+                <td>
+                  <span class="app-badge-hours">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    25m
+                  </span>
+                </td>
+                <td>22 paź 2023</td>
+                <td>
+                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="app-table__name-cell">
+                    <span class="app-table__icon app-table__icon--purple material-symbols-outlined" aria-hidden="true">fitness_center</span>
+                    Karnet na siłownię
+                  </div>
+                </td>
+                <td class="app-table__mono">600,00 PLN</td>
+                <td>
+                  <span class="app-badge-hours">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    20h
+                  </span>
+                </td>
+                <td>15 paź 2023</td>
+                <td>
+                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="app-table__name-cell">
+                    <span class="app-table__icon app-table__icon--emerald material-symbols-outlined" aria-hidden="true">home</span>
+                    Czynsz miesięczny
+                  </div>
+                </td>
+                <td class="app-table__mono">3 200,00 PLN</td>
+                <td>
+                  <span class="app-badge-hours">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    61.6h
+                  </span>
+                </td>
+                <td>01 paź 2023</td>
+                <td>
+                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="app-table__name-cell">
+                    <span class="app-table__icon app-table__icon--yellow material-symbols-outlined" aria-hidden="true">restaurant</span>
+                    Kolacja w restauracji
+                  </div>
+                </td>
+                <td class="app-table__mono">320,00 PLN</td>
+                <td>
+                  <span class="app-badge-hours">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    2.8h
+                  </span>
+                </td>
+                <td>28 wrz 2023</td>
+                <td>
+                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="app-table-footer">
+            <p>Wyświetlanie 1–5 z 42 wpisów</p>
+            <nav class="app-pagination" aria-label="Paginacja">
+              <button class="app-pagination__btn" type="button" disabled aria-label="Poprzednia strona">
+                <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+              </button>
+              <button class="app-pagination__btn app-pagination__btn--active" type="button" aria-current="page">1</button>
+              <button class="app-pagination__btn" type="button">2</button>
+              <button class="app-pagination__btn" type="button">3</button>
+              <button class="app-pagination__btn" type="button" aria-label="Następna strona">
+                <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        <section class="app-history-stats" aria-label="Podsumowanie historii">
+          <article class="app-insight-card">
+            <p class="app-insight-card__label">Łączny czas życia</p>
+            <p class="app-insight-card__value">
+              167.7
+              <span class="app-insight-card__unit">godzin</span>
+            </p>
+            <div class="app-insight-card__bar" role="presentation">
+              <div class="app-insight-card__bar-fill"></div>
+            </div>
+            <p class="app-insight-card__note">65% standardowego miesiąca pracy</p>
+          </article>
+          <article class="app-insight-card">
+            <p class="app-insight-card__label">Średnia stawka godzinowa</p>
+            <p class="app-insight-card__value">
+              53,12
+              <span class="app-insight-card__unit">PLN/h</span>
+            </p>
+            <p class="app-insight-card__note">
+              <span class="material-symbols-outlined" style="font-size: 0.875rem; vertical-align: middle; color: var(--color-primary);" aria-hidden="true">trending_up</span>
+              Wzrost względem września (51,80 PLN/h)
+            </p>
+          </article>
+          <article class="app-insight-card app-insight-card--quote">
+            <p class="app-insight-card__label" style="color: var(--color-primary);">Przypomnienie</p>
+            <blockquote>„Czy ten gadżet jest wart dwóch pełnych tygodni przy biurku?”</blockquote>
+            <a class="app-link-btn" href="/dashboard">
+              Przejdź do pulpitu
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
+            <span class="material-symbols-outlined app-insight-card__bg-icon" aria-hidden="true">hourglass_empty</span>
+          </article>
+        </section>
+      </main>
+      <?php include __DIR__ . '/partials/app/footer-app.html'; ?>
+    </div>
+  </body>
+</html>

@@ -1,39 +1,64 @@
-const form = document.querySelector("form");
-const emailInput = form.querySelector('input[name="email"]');
-const passwordInput = form.querySelector('input[name="password"]');
-const confirmedPasswordInput = form.querySelector('input[name="password2"]');
+document.querySelectorAll('form[action="/register"]').forEach((form) => {
+  const emailInput = form.querySelector('input[name="email"]');
+  const usernameInput = form.querySelector('input[name="username"]');
+  const passwordInput = form.querySelector('input[name="password"]');
+  const confirmedPasswordInput = form.querySelector('input[name="password2"]');
 
-function isEmail(email) {
+  function isEmail(email) {
     return /\S+@\S+\.\S+/.test(email);
-}
+  }
 
-function arePasswordsSame(password, confirmedPassword) {
+  function arePasswordsSame(password, confirmedPassword) {
     return password === confirmedPassword;
-}
+  }
 
-function markValidation(element, condition) {
-    !condition ? element.classList.add('no-valid') : element.classList.remove('no-valid');
-}
+  function markValidation(element, condition) {
+    if (!element) return;
+    element.classList.toggle("no-valid", !condition);
+  }
 
-function validateEmail() {
-    setTimeout(function () {
-            markValidation(emailInput, isEmail(emailInput.value));
-        },
-        1000
+  function validateEmail() {
+    if (!emailInput) return;
+    markValidation(emailInput, isEmail(emailInput.value));
+  }
+
+  function validateUsername() {
+    if (!usernameInput) return;
+    markValidation(usernameInput, usernameInput.value.trim().length > 0);
+  }
+
+  function validatePassword() {
+    if (!passwordInput || !confirmedPasswordInput) return;
+    markValidation(
+      confirmedPasswordInput,
+      arePasswordsSame(passwordInput.value, confirmedPasswordInput.value)
     );
-}
+  }
 
-function validatePassword() {
-    setTimeout(function () {
-            const condition = arePasswordsSame(
-                confirmedPasswordInput.previousElementSibling.value,
-                confirmedPasswordInput.value
-            );
-            markValidation(confirmedPasswordInput, condition);
-        },
-        1000
-    );
-}
+  let emailTimer;
+  let passwordTimer;
+  let usernameTimer;
 
-emailInput.addEventListener('keyup', validateEmail);
-confirmedPasswordInput.addEventListener('keyup', validatePassword);
+  if (emailInput) {
+    emailInput.addEventListener("input", () => {
+      clearTimeout(emailTimer);
+      emailTimer = setTimeout(validateEmail, 400);
+    });
+  }
+
+  if (usernameInput) {
+    usernameInput.addEventListener("input", () => {
+      clearTimeout(usernameTimer);
+      usernameTimer = setTimeout(validateUsername, 400);
+    });
+  }
+
+  if (confirmedPasswordInput && passwordInput) {
+    const onPasswordInput = () => {
+      clearTimeout(passwordTimer);
+      passwordTimer = setTimeout(validatePassword, 400);
+    };
+    confirmedPasswordInput.addEventListener("input", onPasswordInput);
+    passwordInput.addEventListener("input", onPasswordInput);
+  }
+});

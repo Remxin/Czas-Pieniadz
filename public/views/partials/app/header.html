@@ -1,0 +1,115 @@
+<?php
+$appNavActive = $appNavActive ?? '';
+$navItems = [
+    'dashboard' => ['href' => '/dashboard', 'label' => 'Pulpit', 'icon' => 'dashboard'],
+    'history' => ['href' => '/history', 'label' => 'Historia', 'icon' => 'history'],
+];
+$accountItems = [
+    'settings' => ['href' => '/settings', 'label' => 'Ustawienia', 'icon' => 'settings'],
+    'logout' => ['href' => '/logout', 'label' => 'Wyloguj', 'icon' => 'logout'],
+];
+?>
+<header class="app-header" data-app-header>
+  <a class="app-header__brand" href="/dashboard">
+    <?php
+      $logoClass = 'app-logo app-logo--header';
+      include __DIR__ . '/../logo.html';
+    ?>
+  </a>
+  <div class="app-header__end">
+    <nav class="app-header__nav" aria-label="Główna nawigacja">
+      <ul>
+        <?php foreach ($navItems as $key => $item): ?>
+        <li>
+          <a
+            class="app-header__nav-link<?= $appNavActive === $key ? ' app-header__nav-link--active' : ''; ?>"
+            href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>"
+            <?= $appNavActive === $key ? 'aria-current="page"' : ''; ?>
+          ><?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8'); ?></a>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </nav>
+
+    <button
+      type="button"
+      class="app-header__menu-btn"
+      data-app-menu-toggle
+      aria-expanded="false"
+      aria-controls="app-header-drawer"
+      aria-label="Otwórz menu"
+    >
+      <span class="material-symbols-outlined app-header__menu-icon app-header__menu-icon--open" aria-hidden="true">menu</span>
+      <span class="material-symbols-outlined app-header__menu-icon app-header__menu-icon--close" aria-hidden="true">close</span>
+    </button>
+
+    <div class="app-header__profile" data-app-profile>
+      <button
+        type="button"
+        class="app-header__profile-btn"
+        data-app-profile-toggle
+        aria-expanded="false"
+        aria-controls="app-header-dropdown"
+        aria-label="Menu konta"
+      >
+        <span class="app-header__avatar" aria-hidden="true">
+          <span class="material-symbols-outlined">person</span>
+        </span>
+      </button>
+      <div
+        id="app-header-dropdown"
+        class="app-header__dropdown"
+        role="menu"
+        hidden
+      >
+        <?php foreach ($accountItems as $key => $item): ?>
+        <a
+          class="app-header__dropdown-link<?= $appNavActive === $key ? ' app-header__dropdown-link--active' : ''; ?><?= $key === 'logout' ? ' app-header__dropdown-link--logout' : ''; ?>"
+          href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>"
+          role="menuitem"
+          <?= $appNavActive === $key ? 'aria-current="page"' : ''; ?>
+        >
+          <span class="material-symbols-outlined" aria-hidden="true"><?= htmlspecialchars($item['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
+          <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8'); ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-header-drawer" class="app-header__drawer">
+    <nav class="app-header__drawer-nav" aria-label="Menu mobilne">
+      <ul class="app-header__drawer-list">
+        <?php foreach ($navItems as $key => $item): ?>
+        <li>
+          <a
+            class="app-header__drawer-link<?= $appNavActive === $key ? ' app-header__drawer-link--active' : ''; ?>"
+            href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>"
+            <?= $appNavActive === $key ? 'aria-current="page"' : ''; ?>
+          >
+            <span class="material-symbols-outlined" aria-hidden="true"><?= htmlspecialchars($item['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8'); ?>
+          </a>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+      <hr class="app-header__drawer-divider" />
+      <ul class="app-header__drawer-list">
+        <?php foreach ($accountItems as $key => $item): ?>
+        <li>
+          <a
+            class="app-header__drawer-link<?= $appNavActive === $key ? ' app-header__drawer-link--active' : ''; ?><?= $key === 'logout' ? ' app-header__drawer-link--logout' : ''; ?>"
+            href="<?= htmlspecialchars($item['href'], ENT_QUOTES, 'UTF-8'); ?>"
+            <?= $appNavActive === $key ? 'aria-current="page"' : ''; ?>
+          >
+            <span class="material-symbols-outlined" aria-hidden="true"><?= htmlspecialchars($item['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8'); ?>
+          </a>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="app-header__backdrop" data-app-menu-backdrop hidden aria-hidden="true"></div>
+</header>

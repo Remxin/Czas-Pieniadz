@@ -1,0 +1,51 @@
+<form class="auth-form" method="POST" action="/login">
+  <?php include __DIR__ . '/messages.html'; ?>
+  <div class="auth-field">
+    <label class="auth-label" for="login-email">Adres e-mail</label>
+    <div class="auth-input-wrap">
+      <input
+        class="auth-input"
+        id="login-email"
+        name="email"
+        type="email"
+        placeholder="twoje@email.pl"
+        autocomplete="email"
+        required
+      />
+    </div>
+  </div>
+  <div class="auth-field">
+    <div class="auth-field__label-row">
+      <label class="auth-label" for="login-password">Hasło</label>
+      <a class="auth-link" href="#" aria-disabled="true">Zapomniałeś hasła?</a>
+    </div>
+    <div class="auth-input-wrap">
+      <input
+        class="auth-input auth-input--with-toggle"
+        id="login-password"
+        name="password"
+        type="password"
+        placeholder="Wprowadź hasło"
+        autocomplete="current-password"
+        required
+      />
+      <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
+        <span class="material-symbols-outlined">visibility</span>
+      </button>
+    </div>
+  </div>
+  <div class="auth-checkbox-row auth-checkbox-row--center">
+    <input class="auth-checkbox" id="remember-me" type="checkbox" />
+    <label class="auth-checkbox-label" for="remember-me">Zapamiętaj mnie</label>
+  </div>
+  <button class="auth-btn" type="submit">
+    <span>Zaloguj się</span>
+    <span class="material-symbols-outlined">arrow_forward</span>
+  </button>
+</form>
+<div class="auth-card__footer auth-divider">
+  <p class="auth-footer-text">
+    Nie masz konta?
+    <a href="/register">Zarejestruj się</a>
+  </p>
+</div>

@@ -1,0 +1,68 @@
+:root {
+  --color-primary: #14b8a5;
+  --color-primary-dim: #0d9488;
+  --color-on-primary: #0a1211;
+  --color-background: #0a1211;
+  --color-background-dark: #11211f;
+  --color-background-light: #f6f8f8;
+  --color-surface: #0a1211;
+  --color-surface-container: #11211f;
+  --color-surface-container-low: #0d1b19;
+  --color-surface-container-high: #1c302d;
+  --color-surface-container-highest: #263f3c;
+  --color-on-background: #f1f5f9;
+  --color-on-surface: #f1f5f9;
+  --color-on-surface-variant: #94a3b8;
+  --color-outline: #1f3331;
+  --color-outline-variant: #334155;
+  --color-secondary: #f59e0b;
+  --color-error: #ef4444;
+  --color-error-container: rgba(239, 68, 68, 0.15);
+  --color-on-error-container: #fecaca;
+
+  /* Desktop auth / slate accents (Stitch) */
+  --color-label: #cbd5e1;
+  --color-text-muted: #64748b;
+  --color-surface-glass: rgba(255, 255, 255, 0.05);
+  --color-input-bg: rgba(20, 184, 165, 0.05);
+  --color-border-primary: rgba(20, 184, 165, 0.1);
+  --color-border-primary-strong: rgba(20, 184, 165, 0.2);
+  --color-shadow-primary: rgba(20, 184, 165, 0.2);
+
+  --font-family: "Inter", system-ui, sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  --auth-card-max: 480px;
+}
+
+/* Shared brand wordmark (public/assets/logo.svg) */
+.app-logo {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.app-logo__img {
+  display: block;
+  width: var(--logo-width, 180px);
+  max-width: 100%;
+  height: auto;
+}
+
+.app-logo--header {
+  --logo-width: 160px;
+}
+
+@media (min-width: 768px) {
+  .app-logo--header {
+    --logo-width: 200px;
+  }
+}
+
+.app-logo--nav {
+  --logo-width: 140px;
+}

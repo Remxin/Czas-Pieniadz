@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <?php include __DIR__ . '/partials/head.html'; ?>
+    <script src="/public/scripts/validation.js" defer></script>
   </head>
   <body>
-    <form method="POST" action="\register">
+    <form method="POST" action="/register">
       <h1>REGISTER FORM</h1>
 
       <?php if(isset($messages)): ?>

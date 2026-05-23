@@ -1,25 +1,21 @@
 <?php
 
 require_once 'AppController.php';
-require_once __DIR__.'/../repositories/UsersRepository.php';
 
 class DashboardController extends AppController {
 
     public function index(?string $id = null) {
-        $auth = $this->requireAuth();
-        $currentUser = [
-            'id' => $auth['sub'] ?? '',
-            'email' => $auth['email'] ?? '',
-        ];
+        $this->requireAuth();
+        return $this->render('dashboard');
+    }
 
-        $title = "INDEX";
+    public function settings() {
+        $this->requireAuth();
+        return $this->render('settings');
+    }
 
-        $usersRepository = UsersRepository::getInstance();
-        $users = $usersRepository->getUsers();
-        return $this->render("index", [
-            "title" => $title,
-            "users" => $users,
-            "currentUser" => $currentUser,
-        ]);
+    public function history() {
+        $this->requireAuth();
+        return $this->render('history');
     }
 }

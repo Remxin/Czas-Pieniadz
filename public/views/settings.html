@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <?php include __DIR__ . '/partials/app/head-app.html'; ?>
+    <title>Ustawienia – Czas ↔ Pieniądz</title>
+    <script src="/public/scripts/app.js" defer></script>
+  </head>
+  <body class="app-page">
+    <div class="app-layout">
+      <?php
+        $appNavActive = 'settings';
+        include __DIR__ . '/partials/app/header.html';
+      ?>
+      <main class="app-main">
+        <header class="app-page-header">
+          <h1 class="app-page-header__title">Ustawienia konta</h1>
+          <p class="app-page-header__subtitle">
+            Zarządzaj swoimi preferencjami finansowymi i harmonogramem pracy, aby precyzyjnie przeliczać koszty.
+          </p>
+        </header>
+
+        <section class="app-settings-section" aria-labelledby="finance-heading">
+          <div class="app-settings-section__head">
+            <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+            <h2 id="finance-heading">Dane finansowe i czas pracy</h2>
+          </div>
+          <form action="#" method="get" onsubmit="return false;">
+            <div class="app-form-grid app-form-grid--2">
+              <div class="app-settings-card">
+                <h3>
+                  <span class="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>
+                  Miesięczne dochody
+                </h3>
+                <div class="auth-form">
+                  <div class="auth-field">
+                    <label class="auth-label" for="income-net">Wynagrodzenie netto</label>
+                    <div class="app-input-suffix">
+                      <input class="auth-input" id="income-net" name="income" type="text" value="8 500" />
+                      <span class="app-input-suffix__tag">PLN</span>
+                    </div>
+                  </div>
+                  <div class="auth-field">
+                    <label class="auth-label" for="currency">Waluta domyślna</label>
+                    <select class="auth-select" id="currency" name="currency">
+                      <option selected>PLN (zł)</option>
+                      <option>EUR (€)</option>
+                      <option>USD ($)</option>
+                      <option>GBP (£)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="app-settings-card">
+                <h3>
+                  <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                  Czas pracy
+                </h3>
+                <div class="auth-form">
+                  <div class="auth-field">
+                    <label class="auth-label" for="hours-month">Godziny miesięcznie</label>
+                    <div class="app-input-suffix">
+                      <input class="auth-input" id="hours-month" name="hours" type="number" value="160" />
+                      <span class="app-input-suffix__tag">h</span>
+                    </div>
+                  </div>
+                  <div class="auth-field">
+                    <label class="auth-label" for="days-week">Dni robocze w tygodniu</label>
+                    <input class="auth-input" id="days-week" name="days" type="number" value="5" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="app-settings-actions">
+              <button class="auth-btn auth-btn--auto" type="button">
+                <span class="material-symbols-outlined" aria-hidden="true">save</span>
+                Zapisz zmiany finansowe
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="app-settings-section" aria-labelledby="security-heading">
+          <div class="app-settings-section__head">
+            <span class="material-symbols-outlined" aria-hidden="true">security</span>
+            <h2 id="security-heading">Bezpieczeństwo</h2>
+          </div>
+          <div class="app-settings-card">
+            <h3>Zmiana hasła</h3>
+            <form class="auth-form" action="#" method="get" onsubmit="return false;">
+              <div class="app-form-grid app-form-grid--3">
+                <div class="auth-field">
+                  <label class="auth-label" for="password-current">Obecne hasło</label>
+                  <div class="auth-input-wrap">
+                    <input class="auth-input auth-input--with-toggle" id="password-current" type="password" placeholder="••••••••" autocomplete="current-password" />
+                    <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
+                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="auth-field">
+                  <label class="auth-label" for="password-new">Nowe hasło</label>
+                  <div class="auth-input-wrap">
+                    <input class="auth-input auth-input--with-toggle" id="password-new" type="password" placeholder="Min. 8 znaków" autocomplete="new-password" />
+                    <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
+                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="auth-field">
+                  <label class="auth-label" for="password-confirm">Powtórz nowe hasło</label>
+                  <div class="auth-input-wrap">
+                    <input class="auth-input auth-input--with-toggle" id="password-confirm" type="password" placeholder="••••••••" autocomplete="new-password" />
+                    <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
+                      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="app-settings-actions">
+                <button class="app-btn-secondary" type="button">Zaktualizuj hasło</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="app-account-actions" aria-labelledby="account-heading">
+          <div class="app-account-actions__text">
+            <h3 id="account-heading">Zarządzanie kontem</h3>
+            <p>Wyloguj się ze wszystkich urządzeń lub trwale usuń swoje konto.</p>
+          </div>
+          <div class="app-account-actions__buttons">
+            <a class="app-btn-outline" href="/logout">
+              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+              Wyloguj się
+            </a>
+            <button class="app-btn-danger" type="button">
+              <span class="material-symbols-outlined" aria-hidden="true">delete_forever</span>
+              Usuń konto
+            </button>
+          </div>
+        </section>
+      </main>
+      <?php include __DIR__ . '/partials/app/footer-app.html'; ?>
+    </div>
+  </body>
+</html>

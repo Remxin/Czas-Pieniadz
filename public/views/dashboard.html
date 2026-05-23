@@ -1,12 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
-<body>
-    <?php include __DIR__ . '/partials/nav.html'; ?>
-    <h1>Dashboard</h1>
-</body>
+<html lang="pl">
+  <head>
+    <?php include __DIR__ . '/partials/app/head-app.html'; ?>
+    <title>Pulpit – Czas ↔ Pieniądz</title>
+    <script src="/public/scripts/app.js" defer></script>
+  </head>
+  <body class="app-page">
+    <div class="app-layout">
+      <?php
+        $appNavActive = 'dashboard';
+        include __DIR__ . '/partials/app/header.html';
+      ?>
+      <main class="app-main">
+        <header class="app-page-header app-only-desktop">
+          <h1 class="app-page-header__title">Kalkulator Kosztu Życia</h1>
+          <p class="app-page-header__subtitle">
+            Przelicz wartość przedmiotów na godziny, których nie odzyskasz.
+          </p>
+        </header>
+
+        <header class="app-page-header app-only-mobile">
+          <p class="app-page-header__eyebrow">Pulpit</p>
+          <h1 class="app-page-header__title">Witaj, Marek.</h1>
+        </header>
+
+        <section class="app-section app-card app-card--accent-left" aria-labelledby="calc-heading">
+          <h2 class="app-card__heading" id="calc-heading">Dodaj nowy wydatek</h2>
+          <form class="auth-form" action="#" method="get" onsubmit="return false;">
+            <div class="app-form-grid app-form-grid--calc">
+              <div class="auth-field app-field--icon">
+                <label class="auth-label app-label--upper" for="expense-name">Nazwa wydatku</label>
+                <div class="auth-input-wrap">
+                  <span class="material-symbols-outlined app-field__icon" aria-hidden="true">shopping_bag</span>
+                  <input class="auth-input" id="expense-name" name="name" type="text" placeholder="np. Nowy laptop" />
+                </div>
+              </div>
+              <div class="auth-field app-field--icon">
+                <label class="auth-label app-label--upper" for="expense-price">Cena (PLN)</label>
+                <div class="auth-input-wrap">
+                  <span class="material-symbols-outlined app-field__icon" aria-hidden="true">payments</span>
+                  <input class="auth-input" id="expense-price" name="price" type="number" placeholder="0.00" step="0.01" />
+                </div>
+              </div>
+              <div class="auth-field">
+                <button class="auth-btn" type="button">
+                  <span>Przelicz teraz</span>
+                  <span class="material-symbols-outlined" aria-hidden="true">calculate</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="app-stats app-stats--dashboard" aria-label="Wyniki obliczeń">
+          <article class="app-stat-card app-stat-card--span-2">
+            <div class="app-stat-card__head">
+              <p class="app-stat-card__label">Godziny życia</p>
+              <span class="app-stat-card__icon material-symbols-outlined" aria-hidden="true">schedule</span>
+            </div>
+            <div>
+              <p class="app-stat-card__value app-stat-card__value--primary">142.5</p>
+              <p class="app-stat-card__unit">godzin pracy</p>
+            </div>
+            <div class="app-stat-card__bar" role="presentation">
+              <div class="app-stat-card__bar-fill app-stat-card__bar-fill--75"></div>
+            </div>
+          </article>
+          <article class="app-stat-card app-stat-card--secondary">
+            <div class="app-stat-card__head">
+              <p class="app-stat-card__label">Dni pracy</p>
+              <span class="app-stat-card__icon material-symbols-outlined" aria-hidden="true">calendar_today</span>
+            </div>
+            <div>
+              <p class="app-stat-card__value">17.8</p>
+              <p class="app-stat-card__unit">pełnych etatów</p>
+            </div>
+            <div class="app-stat-card__bar" role="presentation">
+              <div class="app-stat-card__bar-fill app-stat-card__bar-fill--50"></div>
+            </div>
+          </article>
+          <article class="app-stat-card app-stat-card--error">
+            <div class="app-stat-card__head">
+              <p class="app-stat-card__label">% Dochodu</p>
+              <span class="app-stat-card__icon material-symbols-outlined" aria-hidden="true">analytics</span>
+            </div>
+            <div>
+              <p class="app-stat-card__value">82%</p>
+              <p class="app-stat-card__unit">miesięcznej pensji</p>
+            </div>
+            <div class="app-stat-card__bar" role="presentation">
+              <div class="app-stat-card__bar-fill app-stat-card__bar-fill--82"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="app-monthly-summary app-only-mobile" aria-labelledby="monthly-mobile-heading">
+          <div class="app-monthly-summary__head">
+            <h2 class="app-card__heading" id="monthly-mobile-heading">Podsumowanie miesiąca</h2>
+            <span class="app-monthly-summary__badge">Październik 2024</span>
+          </div>
+          <div class="app-monthly-row">
+            <div class="app-monthly-row__icon-wrap">
+              <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+            </div>
+            <div>
+              <p class="app-monthly-row__label">Suma wydatków</p>
+              <p class="app-monthly-row__value">4 250,00 PLN</p>
+            </div>
+          </div>
+          <div class="app-monthly-row">
+            <div class="app-monthly-row__icon-wrap app-monthly-row__icon-wrap--secondary">
+              <span class="material-symbols-outlined" aria-hidden="true">hourglass_empty</span>
+            </div>
+            <div>
+              <p class="app-monthly-row__label">Czas zainwestowany</p>
+              <p class="app-monthly-row__value app-monthly-row__value--secondary">156 godzin</p>
+            </div>
+          </div>
+          <div class="app-monthly-summary__status">
+            <div class="app-monthly-summary__status-head">
+              <span>Status wolności</span>
+              <span>Dobry</span>
+            </div>
+            <div class="app-monthly-summary__status-bar" role="presentation">
+              <div class="app-monthly-summary__status-fill"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="app-dashboard-grid app-only-desktop">
+          <section aria-labelledby="recent-heading">
+            <div class="app-list-header">
+              <h2 class="app-list-header__title" id="recent-heading">Ostatnie obliczenia</h2>
+              <a class="app-link-btn" href="/history">
+                Zobacz wszystkie
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </a>
+            </div>
+            <ul class="app-expense-list">
+              <li class="app-expense-item">
+                <div class="app-expense-item__left">
+                  <span class="app-expense-item__icon app-expense-item__icon--indigo material-symbols-outlined" aria-hidden="true">laptop_mac</span>
+                  <div>
+                    <p class="app-expense-item__name">MacBook Pro 14"</p>
+                    <p class="app-expense-item__meta">Wczoraj, 14:20</p>
+                  </div>
+                </div>
+                <div class="app-expense-item__right">
+                  <p class="app-expense-item__amount">11 499 PLN</p>
+                  <p class="app-expense-item__hours">142h pracy</p>
+                </div>
+              </li>
+              <li class="app-expense-item">
+                <div class="app-expense-item__left">
+                  <span class="app-expense-item__icon app-expense-item__icon--orange material-symbols-outlined" aria-hidden="true">restaurant</span>
+                  <div>
+                    <p class="app-expense-item__name">Kolacja na mieście</p>
+                    <p class="app-expense-item__meta">2 dni temu</p>
+                  </div>
+                </div>
+                <div class="app-expense-item__right">
+                  <p class="app-expense-item__amount">250 PLN</p>
+                  <p class="app-expense-item__hours">3h pracy</p>
+                </div>
+              </li>
+            </ul>
+          </section>
+          <section aria-labelledby="summary-heading">
+            <h2 class="app-list-header__title" id="summary-heading">Podsumowanie (Październik)</h2>
+            <div class="app-summary-card">
+              <div class="app-summary-card__block">
+                <p class="app-summary-card__label">Suma wydatków</p>
+                <p class="app-summary-card__value">15 420,00 PLN</p>
+              </div>
+              <div class="app-summary-card__block app-summary-card__block--bordered">
+                <p class="app-summary-card__label">Koszt w czasie</p>
+                <div class="app-summary-card__value-row">
+                  <p class="app-summary-card__value">192</p>
+                  <p class="app-summary-card__hint">roboczogodziny</p>
+                </div>
+              </div>
+              <div class="app-alert">
+                <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+                <p>Przekroczyłeś swój miesięczny limit o <strong>12h</strong>.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+      <?php include __DIR__ . '/partials/app/footer-app.html'; ?>
+    </div>
+  </body>
 </html>

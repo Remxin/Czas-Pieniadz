@@ -17,6 +17,17 @@
   --color-outline-variant: #334155;
   --color-secondary: #f59e0b;
   --color-error: #ef4444;
+  --color-error-container: rgba(239, 68, 68, 0.15);
+  --color-on-error-container: #fecaca;
+
+  /* Desktop auth / slate accents (Stitch) */
+  --color-label: #cbd5e1;
+  --color-text-muted: #64748b;
+  --color-surface-glass: rgba(255, 255, 255, 0.05);
+  --color-input-bg: rgba(20, 184, 165, 0.05);
+  --color-border-primary: rgba(20, 184, 165, 0.1);
+  --color-border-primary-strong: rgba(20, 184, 165, 0.2);
+  --color-shadow-primary: rgba(20, 184, 165, 0.2);
 
   --font-family: "Inter", system-ui, sans-serif;
   --radius-sm: 0.25rem;
@@ -24,55 +35,34 @@
   --radius-lg: 0.75rem;
   --radius-full: 9999px;
 
-  --auth-breakpoint: 900px;
   --auth-card-max: 480px;
-  --auth-content-max: 28rem;
 }
 
-/* Shared brand logo (public/assets/logo.svg) */
+/* Shared brand wordmark (public/assets/logo.svg) */
 .app-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--color-primary);
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
   text-decoration: none;
 }
 
-.app-logo__icon {
+.app-logo__img {
   display: block;
-  flex-shrink: 0;
+  width: var(--logo-width, 180px);
+  max-width: 100%;
+  height: auto;
 }
 
-.app-logo__text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-on-background);
+.app-logo--header {
+  --logo-width: 160px;
 }
 
-.app-logo__accent {
-  color: var(--color-primary);
+@media (min-width: 768px) {
+  .app-logo--header {
+    --logo-width: 200px;
+  }
 }
 
-.app-logo--brand-mobile {
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.app-logo--topbar .app-logo__text {
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
-
-.app-logo--nav .app-logo__text {
-  font-size: 1rem;
-  color: white;
-}
-
-.app-logo--nav .app-logo__accent {
-  color: #99f6e4;
+.app-logo--nav {
+  --logo-width: 140px;
 }

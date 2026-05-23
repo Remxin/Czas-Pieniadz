@@ -5,42 +5,22 @@
     <title>Logowanie – Czas ↔ Pieniądz</title>
     <script src="/public/scripts/auth.js" defer></script>
   </head>
-  <body class="auth-page auth-page--desktop-ready">
-    <!-- Mobile layout -->
-    <div class="auth-mobile">
-      <div class="auth-bg auth-bg--mobile-login" aria-hidden="true"></div>
-      <?php include __DIR__ . '/partials/auth/brand-mobile.html'; ?>
-      <main class="auth-main--login-mobile">
-        <div class="auth-card auth-card--mobile">
-          <header class="auth-card__header">
-            <h2 class="auth-card__title">Zaloguj się</h2>
-            <p class="auth-card__subtitle">Witaj ponownie, Architekcie.</p>
-          </header>
-          <?php $variant = 'mobile'; include __DIR__ . '/partials/auth/form-login.html'; ?>
-        </div>
-        <p class="auth-footer-text">
-          Nie masz konta?
-          <a href="/register">Zarejestruj się</a>
-        </p>
-      </main>
-    </div>
-
-    <!-- Desktop layout -->
-    <div class="auth-desktop">
+  <body class="auth-page">
+    <div class="auth-layout">
       <?php
         $authCtaHref = '/register';
         $authCtaLabel = 'Zarejestruj się';
         include __DIR__ . '/partials/auth/header-desktop.html';
       ?>
-      <main class="auth-main--desktop">
-        <div class="auth-card auth-card--desktop">
-          <header class="auth-card__header auth-card__header--desktop">
-            <h2 class="auth-card__title auth-card__title--desktop">Witaj ponownie</h2>
-            <p class="auth-card__subtitle auth-card__subtitle--desktop">
+      <main class="auth-main">
+        <div class="auth-card">
+          <header class="auth-card__header">
+            <h2 class="auth-card__title">Witaj ponownie</h2>
+            <p class="auth-card__subtitle">
               Przelicz swój czas na pieniądze i podejmuj lepsze decyzje zakupowe.
             </p>
           </header>
-          <?php $variant = 'desktop'; include __DIR__ . '/partials/auth/form-login.html'; ?>
+          <?php include __DIR__ . '/partials/auth/form-login.html'; ?>
         </div>
       </main>
       <?php include __DIR__ . '/partials/auth/footer.html'; ?>

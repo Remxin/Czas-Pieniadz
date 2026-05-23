@@ -1,96 +1,10 @@
-<?php $variant = $variant ?? 'mobile'; ?>
-<?php if ($variant === 'mobile'): ?>
 <form class="auth-form" method="POST" action="/register">
   <?php include __DIR__ . '/messages.html'; ?>
   <div class="auth-field">
-    <label class="auth-label" for="register-email-mobile">Adres email</label>
-    <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">mail</span>
-      <input
-        class="auth-input"
-        id="register-email-mobile"
-        name="email"
-        type="email"
-        placeholder="email@architekt.pl"
-        autocomplete="email"
-        required
-      />
-    </div>
-  </div>
-  <div class="auth-field">
-    <label class="auth-label" for="register-username-mobile">Nazwa użytkownika</label>
-    <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">person</span>
-      <input
-        class="auth-input"
-        id="register-username-mobile"
-        name="username"
-        type="text"
-        placeholder="architekt"
-        autocomplete="username"
-        required
-      />
-    </div>
-  </div>
-  <div class="auth-field">
-    <label class="auth-label" for="register-password-mobile">Hasło</label>
-    <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">lock</span>
-      <input
-        class="auth-input auth-input--with-toggle"
-        id="register-password-mobile"
-        name="password"
-        type="password"
-        placeholder="••••••••"
-        autocomplete="new-password"
-        required
-      />
-      <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
-        <span class="material-symbols-outlined">visibility</span>
-      </button>
-    </div>
-  </div>
-  <div class="auth-field">
-    <label class="auth-label" for="register-password2-mobile">Powtórz hasło</label>
-    <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">verified_user</span>
-      <input
-        class="auth-input auth-input--with-toggle"
-        id="register-password2-mobile"
-        name="password2"
-        type="password"
-        placeholder="••••••••"
-        autocomplete="new-password"
-        required
-      />
-      <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
-        <span class="material-symbols-outlined">visibility</span>
-      </button>
-    </div>
-  </div>
-  <div class="auth-checkbox-row">
-    <input class="auth-checkbox" id="terms-mobile" name="terms" type="checkbox" required />
-    <label class="auth-checkbox-label" for="terms-mobile">
-      Akceptuję <a href="#">Regulamin</a> oraz <a href="#">Politykę Prywatności</a> systemu Czas ↔ Pieniądz.
-    </label>
-  </div>
-  <button class="auth-btn" type="submit">
-    <span>Utwórz konto</span>
-    <span class="material-symbols-outlined">arrow_forward</span>
-  </button>
-</form>
-<div class="auth-card__footer">
-  <p class="auth-card__footer-label">Masz już konto?</p>
-  <a class="auth-btn auth-btn--ghost" href="/login">Zaloguj się</a>
-</div>
-<?php else: ?>
-<form class="auth-form auth-form--desktop" method="POST" action="/register">
-  <?php include __DIR__ . '/messages.html'; ?>
-  <div class="auth-field">
-    <label class="auth-label auth-label--desktop" for="register-email-desktop">Adres e-mail</label>
+    <label class="auth-label" for="register-email">Adres e-mail</label>
     <input
-      class="auth-input auth-input--desktop"
-      id="register-email-desktop"
+      class="auth-input"
+      id="register-email"
       name="email"
       type="email"
       placeholder="twoje@email.pl"
@@ -99,10 +13,10 @@
     />
   </div>
   <div class="auth-field">
-    <label class="auth-label auth-label--desktop" for="register-username-desktop">Nazwa użytkownika</label>
+    <label class="auth-label" for="register-username">Nazwa użytkownika</label>
     <input
-      class="auth-input auth-input--desktop"
-      id="register-username-desktop"
+      class="auth-input"
+      id="register-username"
       name="username"
       type="text"
       placeholder="twoja_nazwa"
@@ -111,11 +25,11 @@
     />
   </div>
   <div class="auth-field">
-    <label class="auth-label auth-label--desktop" for="register-password-desktop">Hasło</label>
-    <div class="auth-input-wrap auth-input-wrap--desktop">
+    <label class="auth-label" for="register-password">Hasło</label>
+    <div class="auth-input-wrap">
       <input
-        class="auth-input auth-input--desktop auth-input--with-toggle"
-        id="register-password-desktop"
+        class="auth-input auth-input--with-toggle"
+        id="register-password"
         name="password"
         type="password"
         placeholder="Wprowadź silne hasło"
@@ -128,11 +42,11 @@
     </div>
   </div>
   <div class="auth-field">
-    <label class="auth-label auth-label--desktop" for="register-password2-desktop">Powtórz hasło</label>
-    <div class="auth-input-wrap auth-input-wrap--desktop">
+    <label class="auth-label" for="register-password2">Powtórz hasło</label>
+    <div class="auth-input-wrap">
       <input
-        class="auth-input auth-input--desktop auth-input--with-toggle"
-        id="register-password2-desktop"
+        class="auth-input auth-input--with-toggle"
+        id="register-password2"
         name="password2"
         type="password"
         placeholder="Wprowadź hasło ponownie"
@@ -145,20 +59,19 @@
     </div>
   </div>
   <div class="auth-checkbox-row">
-    <input class="auth-checkbox" id="terms-desktop" name="terms" type="checkbox" required />
-    <label class="auth-checkbox-label auth-checkbox-label--desktop" for="terms-desktop">
+    <input class="auth-checkbox" id="terms" name="terms" type="checkbox" required />
+    <label class="auth-checkbox-label" for="terms">
       Akceptuję <a href="#">regulamin</a> oraz <a href="#">politykę prywatności</a> serwisu.
     </label>
   </div>
-  <button class="auth-btn auth-btn--desktop" type="submit">
+  <button class="auth-btn" type="submit">
     <span>Utwórz konto</span>
     <span class="material-symbols-outlined">arrow_forward</span>
   </button>
 </form>
-<div class="auth-card__footer auth-card__footer--desktop auth-divider--desktop">
-  <p class="auth-footer-text--desktop">
+<div class="auth-card__footer auth-divider">
+  <p class="auth-footer-text">
     Masz już konto?
     <a href="/login">Zaloguj się</a>
   </p>
 </div>
-<?php endif; ?>

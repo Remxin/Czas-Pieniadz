@@ -1,54 +1,11 @@
-<?php $variant = $variant ?? 'mobile'; ?>
-<?php if ($variant === 'mobile'): ?>
 <form class="auth-form" method="POST" action="/login">
   <?php include __DIR__ . '/messages.html'; ?>
   <div class="auth-field">
-    <label class="auth-label" for="login-email-mobile">Email</label>
+    <label class="auth-label" for="login-email">Adres e-mail</label>
     <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">mail</span>
       <input
         class="auth-input"
-        id="login-email-mobile"
-        name="email"
-        type="email"
-        placeholder="architekt@temporal.io"
-        autocomplete="email"
-        required
-      />
-    </div>
-  </div>
-  <div class="auth-field">
-    <div class="auth-field__label-row">
-      <label class="auth-label" for="login-password-mobile">Hasło</label>
-      <a class="auth-link" href="#" aria-disabled="true">Zapomniałeś?</a>
-    </div>
-    <div class="auth-input-wrap">
-      <span class="material-symbols-outlined">lock</span>
-      <input
-        class="auth-input auth-input--with-toggle"
-        id="login-password-mobile"
-        name="password"
-        type="password"
-        placeholder="••••••••"
-        autocomplete="current-password"
-        required
-      />
-      <button class="auth-input-toggle" type="button" data-password-toggle aria-label="Pokaż hasło">
-        <span class="material-symbols-outlined">visibility</span>
-      </button>
-    </div>
-  </div>
-  <button class="auth-btn" type="submit">Zaloguj się</button>
-</form>
-<?php else: ?>
-<form class="auth-form auth-form--desktop" method="POST" action="/login">
-  <?php include __DIR__ . '/messages.html'; ?>
-  <div class="auth-field">
-    <label class="auth-label auth-label--desktop" for="login-email-desktop">Adres e-mail</label>
-    <div class="auth-input-wrap auth-input-wrap--desktop">
-      <input
-        class="auth-input auth-input--desktop auth-input--with-toggle"
-        id="login-email-desktop"
+        id="login-email"
         name="email"
         type="email"
         placeholder="twoje@email.pl"
@@ -59,13 +16,13 @@
   </div>
   <div class="auth-field">
     <div class="auth-field__label-row">
-      <label class="auth-label auth-label--desktop" for="login-password-desktop">Hasło</label>
-      <a class="auth-link auth-link--desktop" href="#" aria-disabled="true">Zapomniałeś hasła?</a>
+      <label class="auth-label" for="login-password">Hasło</label>
+      <a class="auth-link" href="#" aria-disabled="true">Zapomniałeś hasła?</a>
     </div>
-    <div class="auth-input-wrap auth-input-wrap--desktop">
+    <div class="auth-input-wrap">
       <input
-        class="auth-input auth-input--desktop auth-input--with-toggle"
-        id="login-password-desktop"
+        class="auth-input auth-input--with-toggle"
+        id="login-password"
         name="password"
         type="password"
         placeholder="Wprowadź hasło"
@@ -79,19 +36,16 @@
   </div>
   <div class="auth-checkbox-row auth-checkbox-row--center">
     <input class="auth-checkbox" id="remember-me" type="checkbox" />
-    <label class="auth-checkbox-label auth-checkbox-label--desktop" for="remember-me">
-      Zapamiętaj mnie
-    </label>
+    <label class="auth-checkbox-label" for="remember-me">Zapamiętaj mnie</label>
   </div>
-  <button class="auth-btn auth-btn--desktop" type="submit">
+  <button class="auth-btn" type="submit">
     <span>Zaloguj się</span>
     <span class="material-symbols-outlined">arrow_forward</span>
   </button>
 </form>
-<div class="auth-card__footer auth-card__footer--desktop auth-divider--desktop">
-  <p class="auth-footer-text--desktop">
+<div class="auth-card__footer auth-divider">
+  <p class="auth-footer-text">
     Nie masz konta?
     <a href="/register">Zarejestruj się</a>
   </p>
 </div>
-<?php endif; ?>

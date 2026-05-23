@@ -1,0 +1,78 @@
+:root {
+  --color-primary: #14b8a5;
+  --color-primary-dim: #0d9488;
+  --color-on-primary: #0a1211;
+  --color-background: #0a1211;
+  --color-background-dark: #11211f;
+  --color-background-light: #f6f8f8;
+  --color-surface: #0a1211;
+  --color-surface-container: #11211f;
+  --color-surface-container-low: #0d1b19;
+  --color-surface-container-high: #1c302d;
+  --color-surface-container-highest: #263f3c;
+  --color-on-background: #f1f5f9;
+  --color-on-surface: #f1f5f9;
+  --color-on-surface-variant: #94a3b8;
+  --color-outline: #1f3331;
+  --color-outline-variant: #334155;
+  --color-secondary: #f59e0b;
+  --color-error: #ef4444;
+
+  --font-family: "Inter", system-ui, sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  --auth-breakpoint: 900px;
+  --auth-card-max: 480px;
+  --auth-content-max: 28rem;
+}
+
+/* Shared brand logo (public/assets/logo.svg) */
+.app-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.app-logo__icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.app-logo__text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-on-background);
+}
+
+.app-logo__accent {
+  color: var(--color-primary);
+}
+
+.app-logo--brand-mobile {
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-logo--topbar .app-logo__text {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.app-logo--nav .app-logo__text {
+  font-size: 1rem;
+  color: white;
+}
+
+.app-logo--nav .app-logo__accent {
+  color: #99f6e4;
+}

@@ -1,6 +1,14 @@
 <nav>
     <div class="container">
-        <span>LOGO</span>
+        <a href="/">
+            <?php
+                $logoClass = 'app-logo app-logo--nav';
+                $logoSize = 28;
+                $showText = true;
+                $textClass = 'app-logo__text app-logo__text--nav';
+                include __DIR__ . '/logo.html';
+            ?>
+        </a>
         <i class="display-mobile fa-solid fa-bars"></i>
         <ul>
 

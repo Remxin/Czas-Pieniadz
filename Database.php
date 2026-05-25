@@ -1,6 +1,7 @@
 <?php
 // .env 
 require_once "config.php";
+require_once __DIR__ . '/src/services/DatabaseMigration.php';
 
 // singleton 
 class Database {
@@ -30,6 +31,7 @@ class Database {
 
             // set the PDO error mode to exception
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            DatabaseMigration::run($conn);
             return $conn;
         }
         catch(PDOException $e) {

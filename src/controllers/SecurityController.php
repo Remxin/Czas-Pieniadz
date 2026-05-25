@@ -7,10 +7,9 @@ class SecurityController extends AppController {
 
     public function login() {
         if (!$this->isPost()) {
-            if ($this->getJwtPayload() !== null) {
-                $url = "http://$_SERVER[HTTP_HOST]/dashboard";
-                header("Location: {$url}");
-                exit;
+            $payload = $this->getJwtPayload();
+            if ($payload !== null) {
+                $this->redirectAfterAuth($this->userIdFromPayload($payload));
             }
             return $this->render("login");
         }
@@ -43,9 +42,7 @@ class SecurityController extends AppController {
             $this->authCookieOptions(time() + (defined('JWT_TTL') ? (int) JWT_TTL : 604800))
         );
 
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/dashboard");
-        exit;
+        $this->redirectAfterAuth((int) $user['id']);
     }
 
     public function logout() {

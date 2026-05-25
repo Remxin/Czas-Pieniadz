@@ -30,6 +30,34 @@ class UsersRepository extends Repository {
         return $user;
     }
 
+    public function getUserById(int $id): ?array
+    {
+        $query = $this->database->connect()->prepare(
+            "
+            SELECT * FROM users WHERE id = :id
+            "
+        );
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+
+        $user = $query->fetch(PDO::FETCH_ASSOC);
+        return $user !== false ? $user : null;
+    }
+
+    public function updateDefaultCurrency(int $userId, string $currency): void
+    {
+        $query = $this->database->connect()->prepare(
+            "
+            UPDATE users SET default_currency = :currency, updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id
+            "
+        );
+        $query->execute([
+            ':currency' => $currency,
+            ':id' => $userId,
+        ]);
+    }
+
     public function createUser(
         string $email,
         string $hashedPassword,

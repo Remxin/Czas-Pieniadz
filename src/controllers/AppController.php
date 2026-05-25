@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../services/JwtService.php';
+require_once __DIR__ . '/../repositories/UserMetricsRepository.php';
 
 class AppController
 {
@@ -67,6 +68,39 @@ class AppController
             exit;
         }
         return $payload;
+    }
+
+    protected function userIdFromPayload(array $payload): int
+    {
+        return (int) ($payload['sub'] ?? 0);
+    }
+
+    protected function userHasCompleteMetrics(int $userId): bool
+    {
+        return UserMetricsRepository::getInstance()->hasAllRequiredMetrics($userId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function requireCompleteMetrics(): array
+    {
+        $payload = $this->requireAuth();
+        $userId = $this->userIdFromPayload($payload);
+        if (!$this->userHasCompleteMetrics($userId)) {
+            $url = "http://{$_SERVER['HTTP_HOST']}/settings";
+            header("Location: {$url}");
+            exit;
+        }
+        return $payload;
+    }
+
+    protected function redirectAfterAuth(int $userId): void
+    {
+        $path = $this->userHasCompleteMetrics($userId) ? '/dashboard' : '/settings';
+        $url = "http://{$_SERVER['HTTP_HOST']}{$path}";
+        header("Location: {$url}");
+        exit;
     }
 
     protected function render(string $template = null, array $variables = [])

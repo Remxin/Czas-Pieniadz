@@ -1,3 +1,16 @@
+CREATE TYPE spending_currency AS ENUM (
+    'USD',
+    'EUR',
+    'GBP',
+    'PLN'
+);
+
+CREATE TYPE lifecycle_metric_type AS ENUM (
+    'earnings',              -- Monthly earnings
+    'work_days_per_week',    -- Work days per week
+    'work_hours_per_month'   -- Work hours per month
+);
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -5,16 +18,11 @@ CREATE TABLE users (
     password TEXT NOT NULL,
 
     full_name VARCHAR(100),
+    default_currency spending_currency NOT NULL DEFAULT 'PLN',
     
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TYPE lifecycle_metric_type AS ENUM (
-    'earnings',          -- Monthly earnings
-    'job_satisfaction',  -- Job satisfaction (1-5)
-    'work_days_per_week' -- Work days per week
 );
 
 CREATE TABLE user_refresh_tokens (

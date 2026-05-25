@@ -1037,6 +1037,45 @@ body.app-menu-scroll-lock {
 
 /* --- Settings --- */
 
+.app-settings-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+}
+
+.app-settings-banner p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-on-surface);
+}
+
+.app-settings-banner .material-symbols-outlined {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.app-settings-banner--success {
+  border-color: var(--color-primary);
+}
+
+.app-settings-banner--success .material-symbols-outlined {
+  color: var(--color-primary);
+}
+
+.app-settings-banner--error {
+  border-color: var(--color-error);
+}
+
+.app-settings-banner--error .material-symbols-outlined {
+  color: var(--color-error);
+}
+
 .app-settings-section {
   margin-bottom: 2.5rem;
 }
@@ -1638,6 +1677,12 @@ body.app-menu-scroll-lock {
 .auth-btn--auto {
   width: auto;
   margin-top: 0;
+}
+
+.auth-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {

@@ -506,6 +506,12 @@ body.app-menu-scroll-lock {
   width: 4px;
   height: 100%;
   background: var(--color-primary);
+  pointer-events: none;
+}
+
+.app-card--accent-left > * {
+  position: relative;
+  z-index: 1;
 }
 
 .app-card__heading {
@@ -815,6 +821,99 @@ body.app-menu-scroll-lock {
 .app-expense-item__icon--orange {
   background: rgba(249, 115, 22, 0.2);
   color: #fb923c;
+}
+
+.app-expense-item__icon--primary {
+  background: rgba(20, 184, 165, 0.2);
+  color: var(--color-primary);
+}
+
+.app-expense-item__icon--blue {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.app-expense-item__icon--emerald {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.app-expense-item__icon--purple {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+}
+
+.app-expense-item__icon--yellow {
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+}
+
+.app-dashboard-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.app-dashboard-actions[hidden] {
+  display: none;
+}
+
+.app-dashboard-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-error);
+}
+
+.app-dashboard-hint[hidden] {
+  display: none;
+}
+
+.app-monthly-row__sub,
+.app-summary-card__sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.app-dashboard-actions__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.app-dashboard-actions__buttons form {
+  flex: 1;
+  min-width: 10rem;
+}
+
+.app-dashboard-actions__buttons .auth-btn {
+  width: 100%;
+}
+
+.auth-btn--secondary {
+  background: transparent;
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border-primary-strong);
+}
+
+.auth-btn--secondary:hover {
+  background: var(--color-surface-glass);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.app-empty-hint {
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  background: var(--color-surface-glass);
+  border: 1px dashed var(--color-border-primary);
+  border-radius: var(--radius-lg);
 }
 
 .app-expense-item__name {

@@ -41,6 +41,7 @@ CREATE TABLE user_refresh_tokens (
 CREATE TABLE fixed_costs(
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    icon VARCHAR(255) NOT NULL,
     spending_name VARCHAR(255) NOT NULL,
     spending_value DECIMAL(10, 2) NOT NULL,
     spending_currency VARCHAR(3) NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE fixed_costs(
 CREATE TABLE user_spendings (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    icon VARCHAR(255) NOT NULL,
     spending_name VARCHAR(255) NOT NULL,
     spending_value DECIMAL(10, 2) NOT NULL,
     spending_currency VARCHAR(3) NOT NULL,

@@ -3,14 +3,210 @@
 require_once 'AppController.php';
 require_once __DIR__ . '/../repositories/UsersRepository.php';
 require_once __DIR__ . '/../repositories/UserMetricsRepository.php';
+require_once __DIR__ . '/../repositories/UserSpendingsRepository.php';
+require_once __DIR__ . '/../repositories/FixedCostsRepository.php';
+require_once __DIR__ . '/../services/LifeCostCalculator.php';
+require_once __DIR__ . '/../config/IconCatalog.php';
 
 class DashboardController extends AppController {
 
     private const ALLOWED_CURRENCIES = ['PLN', 'EUR', 'USD', 'GBP'];
 
+    private const MONTH_NAMES = [
+        1 => 'Styczeń',
+        2 => 'Luty',
+        3 => 'Marzec',
+        4 => 'Kwiecień',
+        5 => 'Maj',
+        6 => 'Czerwiec',
+        7 => 'Lipiec',
+        8 => 'Sierpień',
+        9 => 'Wrzesień',
+        10 => 'Październik',
+        11 => 'Listopad',
+        12 => 'Grudzień',
+    ];
+
     public function index(?string $id = null) {
-        $this->requireCompleteMetrics();
-        return $this->render('dashboard');
+        if ($this->isPost()) {
+            return $this->handleDashboardPost();
+        }
+        return $this->showDashboard();
+    }
+
+    private function showDashboard(): void
+    {
+        $payload = $this->requireCompleteMetrics();
+        $userId = $this->userIdFromPayload($payload);
+
+        $usersRepository = UsersRepository::getInstance();
+        $metricsRepository = UserMetricsRepository::getInstance();
+        $spendingsRepository = UserSpendingsRepository::getInstance();
+        $fixedCostsRepository = FixedCostsRepository::getInstance();
+        $calculator = new LifeCostCalculator();
+
+        $user = $usersRepository->getUserById($userId);
+        if ($user === null) {
+            $this->redirectToLogin();
+        }
+
+        $metrics = $metricsRepository->getLatestMetricsByType($userId);
+        $currency = $user['default_currency'];
+        $month = (int) date('n');
+        $year = (int) date('Y');
+
+        $monthly = $spendingsRepository->getMonthlySummary($userId, $month, $year);
+        $activeFixedCosts = $fixedCostsRepository->getActiveForMonth($userId, $month, $year);
+        $monthlyFixedTotal = $fixedCostsRepository->sumValues($activeFixedCosts);
+        $monthlySpendingsTotal = $monthly['total_amount'];
+        $monthlyTotal = $monthlySpendingsTotal + $monthlyFixedTotal;
+
+        $allForHours = $monthly['spendings'];
+        foreach ($activeFixedCosts as $fixedCost) {
+            $allForHours[] = ['spending_value' => $fixedCost['spending_value']];
+        }
+        $monthlyHours = $calculator->totalLifeHoursForSpendings($allForHours, $metrics);
+        $workHoursLimit = (float) ($metrics['work_hours_per_month'] ?? 0);
+        $hoursOverLimit = max(0, $monthlyHours - $workHoursLimit);
+        $freedom = $calculator->freedomStatus($monthlyHours, $workHoursLimit);
+
+        $recentSpendings = [];
+        foreach ($spendingsRepository->getRecentByUser($userId) as $row) {
+            $lifeHours = $calculator->lifeHoursForSpending((float) $row['spending_value'], $metrics);
+            $recentSpendings[] = array_merge($row, [
+                'life_hours' => $lifeHours,
+                'life_hours_label' => $calculator->formatHoursShort($lifeHours),
+                'theme_class' => IconCatalog::themeClass($row['icon']),
+                'meta_label' => $this->formatRelativeDate($row['spending_date']),
+            ]);
+        }
+
+        $displayName = trim((string) ($user['full_name'] ?? ''));
+        if ($displayName === '') {
+            $displayName = $user['username'];
+        }
+
+        $this->render('dashboard', [
+            'userName' => $displayName,
+            'currency' => $currency,
+            'metrics' => $metrics,
+            'metricsJson' => json_encode([
+                'earnings' => (float) ($metrics['earnings'] ?? 0),
+                'work_hours_per_month' => (float) ($metrics['work_hours_per_month'] ?? 0),
+            ], JSON_THROW_ON_ERROR),
+            'recentSpendings' => $recentSpendings,
+            'monthlyTotal' => $monthlyTotal,
+            'monthlySpendingsTotal' => $monthlySpendingsTotal,
+            'monthlyFixedTotal' => $monthlyFixedTotal,
+            'monthlyTotalFormatted' => $calculator->formatMoney($monthlyTotal, $currency),
+            'monthlyFixedFormatted' => $calculator->formatMoney($monthlyFixedTotal, $currency),
+            'hasFixedCosts' => $monthlyFixedTotal > 0,
+            'monthlyHours' => $monthlyHours,
+            'monthlyHoursFormatted' => $calculator->formatHours($monthlyHours),
+            'monthlyHoursShort' => (int) round($monthlyHours),
+            'workHoursLimit' => $workHoursLimit,
+            'hoursOverLimit' => $hoursOverLimit,
+            'hoursOverLimitFormatted' => $calculator->formatHours($hoursOverLimit),
+            'showLimitAlert' => $hoursOverLimit > 0,
+            'freedomLabel' => $freedom['label'],
+            'freedomPercent' => $freedom['percent'],
+            'monthLabel' => (self::MONTH_NAMES[$month] ?? '') . ' ' . $year,
+            'monthLabelShort' => self::MONTH_NAMES[$month] ?? '',
+            'icons' => IconCatalog::all(),
+            'defaultIcon' => IconCatalog::DEFAULT_ICON,
+            'saved' => isset($_GET['saved']),
+            'error' => $_GET['error'] ?? null,
+            'hasSpendings' => count($recentSpendings) > 0,
+        ]);
+    }
+
+    private function handleDashboardPost(): void
+    {
+        $payload = $this->requireCompleteMetrics();
+        $userId = $this->userIdFromPayload($payload);
+
+        $error = $this->validateDashboardInput();
+        if ($error !== null) {
+            $this->redirectTo('/dashboard?error=' . rawurlencode($error));
+        }
+
+        $user = UsersRepository::getInstance()->getUserById($userId);
+        if ($user === null) {
+            $this->redirectToLogin();
+        }
+        $currency = $user['default_currency'];
+        $icon = IconCatalog::normalize(trim($_POST['icon'] ?? IconCatalog::DEFAULT_ICON));
+        $name = trim($_POST['name'] ?? '');
+        $price = (float) str_replace(',', '.', trim($_POST['price'] ?? '0'));
+        $action = $_POST['action'] ?? '';
+
+        if ($action === 'add_fixed_cost') {
+            FixedCostsRepository::getInstance()->create($userId, $icon, $name, $price, $currency);
+        } else {
+            UserSpendingsRepository::getInstance()->create($userId, $icon, $name, $price, $currency);
+        }
+
+        $this->redirectTo('/dashboard?saved=1');
+    }
+
+    private function validateDashboardInput(): ?string
+    {
+        $action = $_POST['action'] ?? '';
+        if (!in_array($action, ['add_spending', 'add_fixed_cost'], true)) {
+            return 'Nieprawidłowa akcja.';
+        }
+
+        $name = trim($_POST['name'] ?? '');
+        if ($name === '') {
+            return 'Nazwa wydatku jest wymagana.';
+        }
+
+        $priceRaw = trim($_POST['price'] ?? '');
+        if ($priceRaw === '') {
+            return 'Cena jest wymagana.';
+        }
+
+        $price = (float) str_replace(',', '.', $priceRaw);
+        if ($price <= 0) {
+            return 'Podaj prawidłową cenę.';
+        }
+
+        $icon = trim($_POST['icon'] ?? '');
+        if ($icon !== '' && !IconCatalog::isAllowed($icon)) {
+            return 'Nieprawidłowa ikona.';
+        }
+
+        return null;
+    }
+
+    private function formatRelativeDate(string $dateString): string
+    {
+        $timestamp = strtotime($dateString);
+        if ($timestamp === false) {
+            return '';
+        }
+
+        $diff = time() - $timestamp;
+        if ($diff < 60) {
+            return 'Przed chwilą';
+        }
+        if ($diff < 3600) {
+            $mins = (int) floor($diff / 60);
+            return $mins === 1 ? '1 minutę temu' : $mins . ' min temu';
+        }
+        if ($diff < 86400) {
+            $hours = (int) floor($diff / 3600);
+            return $hours === 1 ? '1 godzinę temu' : $hours . ' godz. temu';
+        }
+        if ($diff < 172800) {
+            return 'Wczoraj, ' . date('H:i', $timestamp);
+        }
+        if ($diff < 604800) {
+            $days = (int) floor($diff / 86400);
+            return $days . ' dni temu';
+        }
+
+        return date('j M Y, H:i', $timestamp);
     }
 
     public function settings() {
@@ -35,9 +231,7 @@ class DashboardController extends AppController {
 
         $user = $usersRepository->getUserById($userId);
         if ($user === null) {
-            $url = "http://{$_SERVER['HTTP_HOST']}/login";
-            header("Location: {$url}");
-            exit;
+            $this->redirectToLogin();
         }
 
         $metrics = $metricsRepository->getLatestMetricsByType($userId);
@@ -104,9 +298,7 @@ class DashboardController extends AppController {
             $changed = true;
         }
 
-        $url = "http://{$_SERVER['HTTP_HOST']}/settings" . ($changed ? '?saved=1' : '');
-        header("Location: {$url}");
-        exit;
+        $this->redirectTo('/settings' . ($changed ? '?saved=1' : ''));
     }
 
     private function metricValueChanged(?float $previous, float $new): bool

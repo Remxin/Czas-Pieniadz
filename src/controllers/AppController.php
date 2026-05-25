@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../services/JwtService.php';
 require_once __DIR__ . '/../repositories/UserMetricsRepository.php';
+require_once __DIR__ . '/../repositories/UsersRepository.php';
 
 class AppController
 {
@@ -43,6 +44,27 @@ class AppController
     /**
      * @return array<string, mixed>|null
      */
+    protected function redirectTo(string $path): void
+    {
+        header('Location: ' . $path);
+        exit;
+    }
+
+    protected function clearAuthCookie(): void
+    {
+        setcookie(
+            $this->jwtCookieName(),
+            '',
+            $this->authCookieOptions(time() - 3600)
+        );
+    }
+
+    protected function redirectToLogin(): void
+    {
+        $this->clearAuthCookie();
+        $this->redirectTo('/login');
+    }
+
     protected function getJwtPayload(): ?array
     {
         $token = $_COOKIE[$this->jwtCookieName()] ?? '';
@@ -50,10 +72,16 @@ class AppController
             return null;
         }
         try {
-            return JwtService::decode($token);
+            $payload = JwtService::decode($token);
         } catch (RuntimeException) {
             return null;
         }
+
+        if (!is_array($payload) || (int) ($payload['sub'] ?? 0) <= 0) {
+            return null;
+        }
+
+        return $payload;
     }
 
     /**
@@ -63,9 +91,7 @@ class AppController
     {
         $payload = $this->getJwtPayload();
         if ($payload === null) {
-            $url = "http://{$_SERVER['HTTP_HOST']}/login";
-            header("Location: {$url}");
-            exit;
+            $this->redirectToLogin();
         }
         return $payload;
     }
@@ -77,7 +103,11 @@ class AppController
 
     protected function userHasCompleteMetrics(int $userId): bool
     {
-        return UserMetricsRepository::getInstance()->hasAllRequiredMetrics($userId);
+        try {
+            return UserMetricsRepository::getInstance()->hasAllRequiredMetrics($userId);
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     /**
@@ -88,19 +118,24 @@ class AppController
         $payload = $this->requireAuth();
         $userId = $this->userIdFromPayload($payload);
         if (!$this->userHasCompleteMetrics($userId)) {
-            $url = "http://{$_SERVER['HTTP_HOST']}/settings";
-            header("Location: {$url}");
-            exit;
+            $this->redirectTo('/settings');
         }
         return $payload;
     }
 
     protected function redirectAfterAuth(int $userId): void
     {
+        if ($userId <= 0) {
+            $this->redirectToLogin();
+        }
+
+        $user = UsersRepository::getInstance()->getUserById($userId);
+        if ($user === null) {
+            $this->redirectToLogin();
+        }
+
         $path = $this->userHasCompleteMetrics($userId) ? '/dashboard' : '/settings';
-        $url = "http://{$_SERVER['HTTP_HOST']}{$path}";
-        header("Location: {$url}");
-        exit;
+        $this->redirectTo($path);
     }
 
     protected function render(string $template = null, array $variables = [])

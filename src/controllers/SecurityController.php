@@ -9,7 +9,12 @@ class SecurityController extends AppController {
         if (!$this->isPost()) {
             $payload = $this->getJwtPayload();
             if ($payload !== null) {
-                $this->redirectAfterAuth($this->userIdFromPayload($payload));
+                $userId = $this->userIdFromPayload($payload);
+                $user = UsersRepository::getInstance()->getUserById($userId);
+                if ($user !== null) {
+                    $this->redirectAfterAuth($userId);
+                }
+                $this->clearAuthCookie();
             }
             return $this->render("login");
         }
@@ -51,9 +56,7 @@ class SecurityController extends AppController {
             '',
             $this->authCookieOptions(time() - 3600)
         );
-        $url = "http://$_SERVER[HTTP_HOST]/login";
-        header("Location: {$url}");
-        exit;
+        $this->redirectTo('/login');
     }
 
     public function register() {
@@ -94,8 +97,7 @@ class SecurityController extends AppController {
             $username,
         );
 
-        $url = "http://$_SERVER[HTTP_HOST]";
-        header("Location: {$url}/login");
+        $this->redirectTo('/login');
     }
 
     /**

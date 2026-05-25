@@ -115,6 +115,12 @@ if (appHeader) {
     document.body.style.paddingRight = locked && scrollbarWidth > 0 ? `${scrollbarWidth}px` : "";
   };
 
+  const closeProfileDropdown = () => {
+    profileWrap?.classList.remove("app-header__profile--open");
+    profileToggle?.setAttribute("aria-expanded", "false");
+    profileDropdown?.setAttribute("hidden", "");
+  };
+
   const closeMobileMenu = () => {
     appHeader.classList.remove("app-header--menu-open");
     menuToggle?.setAttribute("aria-expanded", "false");
@@ -132,12 +138,6 @@ if (appHeader) {
     menuBackdrop?.removeAttribute("hidden");
     menuBackdrop?.setAttribute("aria-hidden", "false");
     setBodyScrollLock(true);
-  };
-
-  const closeProfileDropdown = () => {
-    profileWrap?.classList.remove("app-header__profile--open");
-    profileToggle?.setAttribute("aria-expanded", "false");
-    profileDropdown?.setAttribute("hidden", "");
   };
 
   const openProfileDropdown = () => {

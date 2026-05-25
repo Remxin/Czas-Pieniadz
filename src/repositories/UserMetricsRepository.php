@@ -55,6 +55,41 @@ class UserMetricsRepository extends Repository
         return $metrics;
     }
 
+    /**
+     * @return array<string, float>
+     */
+    public function getMetricsForMonth(int $userId, int $month, int $year): array
+    {
+        $placeholders = implode(', ', array_fill(0, count(self::REQUIRED_METRICS), '?'));
+        $params = array_merge([$userId, $month, $year], self::REQUIRED_METRICS);
+
+        $query = $this->database->connect()->prepare(
+            "
+            SELECT metric_name, metric_value
+            FROM user_metrics_history
+            WHERE user_id = ?
+              AND metric_month = ?
+              AND metric_year = ?
+              AND metric_name IN ({$placeholders})
+            "
+        );
+        $query->execute($params);
+
+        $metrics = [];
+        foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $metrics[$row['metric_name']] = (float) $row['metric_value'];
+        }
+
+        $latest = $this->getLatestMetricsByType($userId);
+        foreach (self::REQUIRED_METRICS as $metricName) {
+            if (!isset($metrics[$metricName]) && isset($latest[$metricName])) {
+                $metrics[$metricName] = $latest[$metricName];
+            }
+        }
+
+        return $metrics;
+    }
+
     public function upsertMetric(
         int $userId,
         string $metricName,

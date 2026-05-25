@@ -2,6 +2,7 @@
 <html lang="pl">
   <head>
     <?php include __DIR__ . '/partials/app/head-app.html'; ?>
+    <link rel="stylesheet" href="/public/styles/history.css" />
     <title>Historia wydatków – Czas ↔ Pieniądz</title>
     <script src="/public/scripts/app.js" defer></script>
   </head>
@@ -19,30 +20,46 @@
               Śledź wydatki, widząc ile godzin życia kosztuje każdy zakup.
             </p>
           </header>
-          <div class="app-toolbar__filters">
-            <label class="app-search">
-              <span class="auth-label app-label--upper">Szukaj</span>
-              <div class="app-search__wrap">
-                <span class="app-search__icon material-symbols-outlined" aria-hidden="true">search</span>
-                <input class="app-search__input" type="search" placeholder="Szukaj wydatków…" />
-              </div>
-            </label>
+          <form method="get" action="/history" class="history-filters app-toolbar__filters" data-month-filter>
             <div class="auth-field app-filter-field">
-              <label class="auth-label app-label--upper" for="filter-month">Filtruj miesiąc</label>
-              <select class="auth-select" id="filter-month" name="month">
-                <option value="october">Październik 2023</option>
-                <option value="september">Wrzesień 2023</option>
-                <option value="august">Sierpień 2023</option>
-                <option value="all">Cała historia</option>
+              <label class="auth-label app-label--upper" for="history-month">Miesiąc</label>
+              <select class="auth-select" id="history-month" name="month">
+                <?php foreach ($monthOptions as $monthNum => $monthName): ?>
+                <option value="<?= (int) $monthNum; ?>"<?= (int) $selectedMonth === (int) $monthNum ? ' selected' : ''; ?>>
+                  <?= htmlspecialchars($monthName, ENT_QUOTES, 'UTF-8'); ?>
+                </option>
+                <?php endforeach; ?>
               </select>
             </div>
-            <button class="app-icon-btn" type="button" aria-label="Filtry">
-              <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
-            </button>
-          </div>
+            <div class="auth-field app-filter-field">
+              <label class="auth-label app-label--upper" for="history-year">Rok</label>
+              <select class="auth-select" id="history-year" name="year">
+                <?php foreach ($yearOptions as $yearOption): ?>
+                <option value="<?= (int) $yearOption; ?>"<?= (int) $selectedYear === (int) $yearOption ? ' selected' : ''; ?>>
+                  <?= (int) $yearOption; ?>
+                </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </form>
         </div>
 
-        <div class="app-table-wrap">
+        <?php if (!empty($deleted)): ?>
+        <div class="app-settings-banner app-settings-banner--success" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+          <p>Wpis został usunięty.</p>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($error)): ?>
+        <div class="app-settings-banner app-settings-banner--error" role="alert">
+          <span class="material-symbols-outlined" aria-hidden="true">error</span>
+          <p><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($hasRows)): ?>
+        <div class="app-table-wrap history-table-wrap">
           <table class="app-table">
             <thead>
               <tr>
@@ -54,164 +71,116 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <?php foreach ($historyRows as $row): ?>
+              <tr class="<?= !empty($row['is_fixed']) ? 'history-row--fixed' : ''; ?>">
                 <td>
                   <div class="app-table__name-cell">
-                    <span class="app-table__icon app-table__icon--blue material-symbols-outlined" aria-hidden="true">laptop_mac</span>
-                    MacBook Pro M3
+                    <span class="app-table__icon <?= htmlspecialchars($row['table_theme_class'], ENT_QUOTES, 'UTF-8'); ?> material-symbols-outlined" aria-hidden="true"><?= htmlspecialchars($row['icon'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    <?= htmlspecialchars($row['spending_name'], ENT_QUOTES, 'UTF-8'); ?>
+                    <?php if (!empty($row['is_fixed'])): ?>
+                    <span class="history-name__badge">stały</span>
+                    <?php endif; ?>
                   </div>
                 </td>
-                <td class="app-table__mono">11 499,00 PLN</td>
+                <td class="app-table__mono"><?= htmlspecialchars($row['amount_formatted'], ENT_QUOTES, 'UTF-8'); ?></td>
                 <td>
                   <span class="app-badge-hours">
                     <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-                    142h
+                    <?= htmlspecialchars($row['life_hours_label'], ENT_QUOTES, 'UTF-8'); ?>
                   </span>
                 </td>
-                <td>24 paź 2023</td>
+                <td><?= htmlspecialchars($row['date_label'], ENT_QUOTES, 'UTF-8'); ?></td>
                 <td>
-                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
-                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                  </button>
+                  <form method="post" action="/history" class="history-delete-form" data-delete-form>
+                    <input type="hidden" name="action" value="<?= $row['entry_type'] === 'fixed' ? 'delete_fixed_cost' : 'delete_spending'; ?>" />
+                    <input type="hidden" name="entry_id" value="<?= (int) $row['id']; ?>" />
+                    <input type="hidden" name="month" value="<?= (int) $selectedMonth; ?>" />
+                    <input type="hidden" name="year" value="<?= (int) $selectedYear; ?>" />
+                    <button
+                      class="app-table__delete"
+                      type="submit"
+                      aria-label="Usuń <?= htmlspecialchars($row['spending_name'], ENT_QUOTES, 'UTF-8'); ?>"
+                      data-delete-confirm="<?= !empty($row['is_fixed'])
+                        ? 'Zamknąć ten koszt stały? Obowiązuje do końca miesiąca poprzedzającego wybrany okres.'
+                        : 'Usunąć ten wydatek?'; ?>"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                    </button>
+                  </form>
                 </td>
               </tr>
-              <tr>
-                <td>
-                  <div class="app-table__name-cell">
-                    <span class="app-table__icon app-table__icon--orange material-symbols-outlined" aria-hidden="true">local_cafe</span>
-                    Kawa i muffinka
-                  </div>
-                </td>
-                <td class="app-table__mono">45,00 PLN</td>
-                <td>
-                  <span class="app-badge-hours">
-                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-                    25m
-                  </span>
-                </td>
-                <td>22 paź 2023</td>
-                <td>
-                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
-                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="app-table__name-cell">
-                    <span class="app-table__icon app-table__icon--purple material-symbols-outlined" aria-hidden="true">fitness_center</span>
-                    Karnet na siłownię
-                  </div>
-                </td>
-                <td class="app-table__mono">600,00 PLN</td>
-                <td>
-                  <span class="app-badge-hours">
-                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-                    20h
-                  </span>
-                </td>
-                <td>15 paź 2023</td>
-                <td>
-                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
-                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="app-table__name-cell">
-                    <span class="app-table__icon app-table__icon--emerald material-symbols-outlined" aria-hidden="true">home</span>
-                    Czynsz miesięczny
-                  </div>
-                </td>
-                <td class="app-table__mono">3 200,00 PLN</td>
-                <td>
-                  <span class="app-badge-hours">
-                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-                    61.6h
-                  </span>
-                </td>
-                <td>01 paź 2023</td>
-                <td>
-                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
-                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="app-table__name-cell">
-                    <span class="app-table__icon app-table__icon--yellow material-symbols-outlined" aria-hidden="true">restaurant</span>
-                    Kolacja w restauracji
-                  </div>
-                </td>
-                <td class="app-table__mono">320,00 PLN</td>
-                <td>
-                  <span class="app-badge-hours">
-                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-                    2.8h
-                  </span>
-                </td>
-                <td>28 wrz 2023</td>
-                <td>
-                  <button class="app-table__delete" type="button" aria-label="Usuń wpis">
-                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                  </button>
-                </td>
-              </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
-          <div class="app-table-footer">
-            <p>Wyświetlanie 1–5 z 42 wpisów</p>
-            <nav class="app-pagination" aria-label="Paginacja">
-              <button class="app-pagination__btn" type="button" disabled aria-label="Poprzednia strona">
-                <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-              </button>
-              <button class="app-pagination__btn app-pagination__btn--active" type="button" aria-current="page">1</button>
-              <button class="app-pagination__btn" type="button">2</button>
-              <button class="app-pagination__btn" type="button">3</button>
-              <button class="app-pagination__btn" type="button" aria-label="Następna strona">
-                <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-              </button>
-            </nav>
+          <?php if (!empty($entryCountLabel)): ?>
+          <div class="history-table-footer">
+            <p><?= htmlspecialchars($entryCountLabel, ENT_QUOTES, 'UTF-8'); ?></p>
           </div>
+          <?php endif; ?>
         </div>
+        <?php else: ?>
+        <p class="history-empty">Brak kosztów w <?= htmlspecialchars($monthLabel, ENT_QUOTES, 'UTF-8'); ?>. Dodaj wydatek na pulpicie.</p>
+        <?php endif; ?>
 
-        <section class="app-history-stats" aria-label="Podsumowanie historii">
-          <article class="app-insight-card">
-            <p class="app-insight-card__label">Łączny czas życia</p>
-            <p class="app-insight-card__value">
-              167.7
-              <span class="app-insight-card__unit">godzin</span>
+        <section class="history-stats" aria-label="Podsumowanie historii">
+          <article class="history-stat-card">
+            <p class="history-stat-card__label">Łączny czas życia</p>
+            <p class="history-stat-card__value">
+              <?= htmlspecialchars($monthlyHoursFormatted, ENT_QUOTES, 'UTF-8'); ?>
+              <span class="history-stat-card__unit">godzin</span>
             </p>
-            <div class="app-insight-card__bar" role="presentation">
-              <div class="app-insight-card__bar-fill"></div>
+            <div class="history-stat-card__bar" role="presentation">
+              <div class="history-stat-card__bar-fill" style="width: <?= (int) $workMonthPercent; ?>%"></div>
             </div>
-            <p class="app-insight-card__note">65% standardowego miesiąca pracy</p>
+            <p class="history-stat-card__note"><?= (int) $workMonthPercent; ?>% standardowego miesiąca pracy</p>
           </article>
-          <article class="app-insight-card">
-            <p class="app-insight-card__label">Średnia stawka godzinowa</p>
-            <p class="app-insight-card__value">
-              53,12
-              <span class="app-insight-card__unit">PLN/h</span>
+          <article class="history-stat-card">
+            <p class="history-stat-card__label">Średnia stawka godzinowa</p>
+            <p class="history-stat-card__value">
+              <?= htmlspecialchars($hourlyRateFormatted, ENT_QUOTES, 'UTF-8'); ?>
             </p>
-            <p class="app-insight-card__note">
+            <?php if (!empty($hourlyRateNote)): ?>
+            <p class="history-stat-card__note">
               <span class="material-symbols-outlined" style="font-size: 0.875rem; vertical-align: middle; color: var(--color-primary);" aria-hidden="true">trending_up</span>
-              Wzrost względem września (51,80 PLN/h)
+              <?= htmlspecialchars($hourlyRateNote, ENT_QUOTES, 'UTF-8'); ?>
             </p>
+            <?php endif; ?>
           </article>
-          <article class="app-insight-card app-insight-card--quote">
-            <p class="app-insight-card__label" style="color: var(--color-primary);">Przypomnienie</p>
-            <blockquote>„Czy ten gadżet jest wart dwóch pełnych tygodni przy biurku?”</blockquote>
-            <a class="app-link-btn" href="/dashboard">
+          <article class="history-stat-card history-stat-card--summary">
+            <p class="history-stat-card__label">Podsumowanie (<?= htmlspecialchars($monthLabelShort, ENT_QUOTES, 'UTF-8'); ?>)</p>
+            <p class="history-stat-card__row">
+              <span>Suma wydatków</span>
+              <strong><?= htmlspecialchars($monthlyTotalFormatted, ENT_QUOTES, 'UTF-8'); ?></strong>
+            </p>
+            <?php if (!empty($hasFixedCosts)): ?>
+            <p class="history-stat-card__sub">w tym koszty stałe: <?= htmlspecialchars($monthlyFixedFormatted, ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php endif; ?>
+            <p class="history-stat-card__row">
+              <span>Liczba wpisów</span>
+              <strong><?= (int) $entryCount; ?></strong>
+            </p>
+            <p class="history-stat-card__row">
+              <span>Status wolności</span>
+              <strong><?= htmlspecialchars($freedomLabel, ENT_QUOTES, 'UTF-8'); ?></strong>
+            </p>
+            <div class="history-stat-card__status-bar" role="presentation">
+              <div class="history-stat-card__status-fill" style="width: <?= (int) $freedomPercent; ?>%"></div>
+            </div>
+            <?php if (!empty($showLimitAlert)): ?>
+            <p class="history-stat-card__note history-stat-card__note--alert">
+              <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+              Przekroczyłeś limit o <?= htmlspecialchars($hoursOverLimitFormatted, ENT_QUOTES, 'UTF-8'); ?>h
+            </p>
+            <?php endif; ?>
+            <a class="history-stat-card__dashboard-link" href="/dashboard">
               Przejdź do pulpitu
               <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             </a>
-            <span class="material-symbols-outlined app-insight-card__bg-icon" aria-hidden="true">hourglass_empty</span>
           </article>
         </section>
       </main>
       <?php include __DIR__ . '/partials/app/footer-app.html'; ?>
     </div>
+    <script src="/public/scripts/history.js" defer></script>
   </body>
 </html>

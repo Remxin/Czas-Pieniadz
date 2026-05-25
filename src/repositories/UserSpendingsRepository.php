@@ -79,4 +79,45 @@ class UserSpendingsRepository extends Repository
             'spendings' => $spendings,
         ];
     }
+
+    /**
+     * @return array<int, int>
+     */
+    public function getAvailableYears(int $userId): array
+    {
+        $query = $this->database->connect()->prepare(
+            "
+            SELECT DISTINCT EXTRACT(YEAR FROM spending_date)::int AS y
+            FROM user_spendings
+            WHERE user_id = :user_id
+            ORDER BY y DESC
+            "
+        );
+        $query->execute([':user_id' => $userId]);
+        $years = [];
+        foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $years[] = (int) $row['y'];
+        }
+
+        $currentYear = (int) date('Y');
+        if (!in_array($currentYear, $years, true)) {
+            $years[] = $currentYear;
+            rsort($years);
+        }
+
+        return $years !== [] ? $years : [$currentYear];
+    }
+
+    public function deleteByIdForUser(int $id, int $userId): bool
+    {
+        $query = $this->database->connect()->prepare(
+            "
+            DELETE FROM user_spendings
+            WHERE id = :id AND user_id = :user_id
+            "
+        );
+        $query->execute([':id' => $id, ':user_id' => $userId]);
+
+        return $query->rowCount() > 0;
+    }
 }

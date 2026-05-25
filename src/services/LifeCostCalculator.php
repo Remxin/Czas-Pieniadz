@@ -95,6 +95,25 @@ class LifeCostCalculator
     }
 
     /**
+     * @param array{earnings?: float, work_hours_per_month?: float} $metrics
+     */
+    public function hourlyRate(array $metrics): float
+    {
+        $earnings = (float) ($metrics['earnings'] ?? 0);
+        $workHours = (float) ($metrics['work_hours_per_month'] ?? 0);
+        if ($earnings <= 0 || $workHours <= 0) {
+            return 0.0;
+        }
+
+        return $earnings / $workHours;
+    }
+
+    public function formatHourlyRate(float $rate, string $currency): string
+    {
+        return number_format($rate, 2, ',', ' ') . ' ' . $currency . '/h';
+    }
+
+    /**
      * @return array{label: string, percent: int}
      */
     public function freedomStatus(float $monthlyHours, float $workHoursPerMonth): array

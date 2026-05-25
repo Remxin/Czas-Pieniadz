@@ -41,6 +41,17 @@ class IconCatalog
         return 'app-expense-item__icon--' . $theme;
     }
 
+    public static function tableThemeClass(string $icon): string
+    {
+        $theme = self::ICONS[self::normalize($icon)]['theme'] ?? 'primary';
+        $tableTheme = match ($theme) {
+            'primary', 'indigo' => 'blue',
+            default => $theme,
+        };
+
+        return 'app-table__icon--' . $tableTheme;
+    }
+
     public static function label(string $icon): string
     {
         return self::ICONS[self::normalize($icon)]['label'] ?? 'Wydatek';

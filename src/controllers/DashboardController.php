@@ -216,11 +216,6 @@ class DashboardController extends AppController {
         return $this->showSettings();
     }
 
-    public function history() {
-        $this->requireCompleteMetrics();
-        return $this->render('history');
-    }
-
     private function showSettings(): void
     {
         $payload = $this->requireAuth();

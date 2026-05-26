@@ -87,6 +87,22 @@
   color: var(--color-primary);
 }
 
+.auth-header__nav--guest {
+  display: flex;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .auth-header__nav--guest {
+    gap: 2rem;
+  }
+}
+
+.auth-header__nav-link--active {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
 .auth-header__cta {
   font-size: 0.875rem;
   font-weight: 700;

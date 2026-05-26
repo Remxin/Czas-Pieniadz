@@ -196,6 +196,7 @@ class AppController
         $output = "";
 
         if (file_exists($templatePath)) {
+            $variables['isLoggedIn'] = ($variables['isLoggedIn'] ?? null) ?? ($this->getJwtPayload() !== null);
             extract($variables);
 
             ob_start();

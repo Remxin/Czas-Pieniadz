@@ -21,16 +21,9 @@
         </header>
 
         <?php if (!empty($metricsIncomplete)): ?>
-        <div class="app-settings-banner" role="status">
+        <div class="app-settings-banner" role="status" data-settings-setup-banner>
           <span class="material-symbols-outlined" aria-hidden="true">info</span>
           <p>Uzupełnij dane finansowe i czas pracy, aby korzystać z aplikacji.</p>
-        </div>
-        <?php endif; ?>
-
-        <?php if (!empty($saved)): ?>
-        <div class="app-settings-banner app-settings-banner--success" role="status">
-          <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-          <p>Zapisano zmiany.</p>
         </div>
         <?php endif; ?>
 
@@ -49,6 +42,7 @@
           <form
             action="/settings"
             method="post"
+            data-fetch-url="/settings"
             data-settings-form
             data-metrics-incomplete="<?= !empty($metricsIncomplete) ? '1' : '0'; ?>"
           >

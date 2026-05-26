@@ -38,7 +38,9 @@ class HistoryController extends AppController
 
     private function handleHistoryPost(): void
     {
-        $payload = $this->requireCompleteMetrics();
+        $this->consumeJsonBody();
+        $wantsJson = $this->wantsJson();
+        $payload = $wantsJson ? $this->requireCompleteMetricsJson() : $this->requireCompleteMetrics();
         $userId = $this->userIdFromPayload($payload);
 
         ['month' => $month, 'year' => $year] = $this->resolveMonthYearFromPost();
@@ -47,13 +49,24 @@ class HistoryController extends AppController
         $action = $_POST['action'] ?? '';
         $entryId = (int) ($_POST['entry_id'] ?? 0);
         if ($entryId <= 0) {
-            $this->redirectTo($redirectBase . '&error=' . rawurlencode('Nieprawidłowy wpis.'));
+            $message = 'Nieprawidłowy wpis.';
+            if ($wantsJson) {
+                $this->json(['ok' => false, 'message' => $message], 422);
+            }
+            $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
         }
 
         if ($action === 'delete_spending') {
             $deleted = UserSpendingsRepository::getInstance()->deleteByIdForUser($entryId, $userId);
             if (!$deleted) {
-                $this->redirectTo($redirectBase . '&error=' . rawurlencode('Nie znaleziono wydatku.'));
+                $message = 'Nie znaleziono wydatku.';
+                if ($wantsJson) {
+                    $this->json(['ok' => false, 'message' => $message], 422);
+                }
+                $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
+            }
+            if ($wantsJson) {
+                $this->json($this->buildHistoryDeleteResponse($userId, $entryId, $month, $year));
             }
             $this->redirectTo($redirectBase . '&deleted=1');
         }
@@ -62,19 +75,112 @@ class HistoryController extends AppController
             $fixedRepo = FixedCostsRepository::getInstance();
             $row = $fixedRepo->getByIdForUser($entryId, $userId);
             if ($row === null) {
-                $this->redirectTo($redirectBase . '&error=' . rawurlencode('Nie znaleziono kosztu stałego.'));
+                $message = 'Nie znaleziono kosztu stałego.';
+                if ($wantsJson) {
+                    $this->json(['ok' => false, 'message' => $message], 422);
+                }
+                $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
             }
             if ($row['valid_to'] !== null) {
-                $this->redirectTo($redirectBase . '&error=' . rawurlencode('Ten koszt stały jest już zamknięty.'));
+                $message = 'Ten koszt stały jest już zamknięty.';
+                if ($wantsJson) {
+                    $this->json(['ok' => false, 'message' => $message], 422);
+                }
+                $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
             }
             $closed = $fixedRepo->removeForViewMonth($entryId, $userId, $month, $year);
             if (!$closed) {
-                $this->redirectTo($redirectBase . '&error=' . rawurlencode('Nie udało się usunąć kosztu stałego.'));
+                $message = 'Nie udało się usunąć kosztu stałego.';
+                if ($wantsJson) {
+                    $this->json(['ok' => false, 'message' => $message], 422);
+                }
+                $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
+            }
+            if ($wantsJson) {
+                $this->json($this->buildHistoryDeleteResponse($userId, $entryId, $month, $year));
             }
             $this->redirectTo($redirectBase . '&deleted=1');
         }
 
-        $this->redirectTo($redirectBase . '&error=' . rawurlencode('Nieprawidłowa akcja.'));
+        $message = 'Nieprawidłowa akcja.';
+        if ($wantsJson) {
+            $this->json(['ok' => false, 'message' => $message], 422);
+        }
+        $this->redirectTo($redirectBase . '&error=' . rawurlencode($message));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildHistoryDeleteResponse(int $userId, int $entryId, int $month, int $year): array
+    {
+        $usersRepository = UsersRepository::getInstance();
+        $metricsRepository = UserMetricsRepository::getInstance();
+        $spendingsRepository = UserSpendingsRepository::getInstance();
+        $fixedCostsRepository = FixedCostsRepository::getInstance();
+        $calculator = new LifeCostCalculator();
+
+        $user = $usersRepository->getUserById($userId);
+        $currency = $user['default_currency'] ?? 'PLN';
+        $metrics = $metricsRepository->getLatestMetricsByType($userId);
+        $monthMetrics = $metricsRepository->getMetricsForMonth($userId, $month, $year);
+
+        $monthly = $spendingsRepository->getMonthlySummary($userId, $month, $year);
+        $activeFixedCosts = $fixedCostsRepository->getActiveForMonth($userId, $month, $year);
+        $monthlyFixedTotal = $fixedCostsRepository->sumValues($activeFixedCosts);
+        $monthlyTotal = $monthly['total_amount'] + $monthlyFixedTotal;
+
+        $allForHours = $monthly['spendings'];
+        foreach ($activeFixedCosts as $fixedCost) {
+            $allForHours[] = ['spending_value' => $fixedCost['spending_value']];
+        }
+        $monthlyHours = $calculator->totalLifeHoursForSpendings($allForHours, $metrics);
+        $workHoursLimit = (float) ($metrics['work_hours_per_month'] ?? 0);
+        $hoursOverLimit = max(0, $monthlyHours - $workHoursLimit);
+        $freedom = $calculator->freedomStatus($monthlyHours, $workHoursLimit);
+
+        $fixedCount = count($activeFixedCosts);
+        $spendingCount = count($monthly['spendings']);
+        $entryCount = $fixedCount + $spendingCount;
+        $historyRows = $this->buildHistoryRows($activeFixedCosts, $monthly['spendings'], $metrics, $calculator, $currency);
+        $entryCountLabel = $this->formatEntryCountLabel(count($historyRows), $entryCount);
+
+        $hourlyRate = $calculator->hourlyRate($monthMetrics);
+        $hourlyRateFormatted = $calculator->formatHourlyRate($hourlyRate, $currency);
+        $prevMonthYear = $this->previousMonthYear($month, $year);
+        $prevMonthMetrics = $metricsRepository->getMetricsForMonth(
+            $userId,
+            $prevMonthYear['month'],
+            $prevMonthYear['year']
+        );
+        $prevHourlyRate = $calculator->hourlyRate($prevMonthMetrics);
+        $hourlyRateNote = $this->formatHourlyRateNote($hourlyRate, $prevHourlyRate, $currency, $prevMonthYear);
+
+        $workMonthPercent = $workHoursLimit > 0
+            ? (int) min(100, round(($monthlyHours / $workHoursLimit) * 100))
+            : 0;
+
+        return [
+            'ok' => true,
+            'message' => 'Wpis został usunięty.',
+            'entryId' => $entryId,
+            'summary' => [
+                'entryCount' => $entryCount,
+                'entryCountLabel' => $entryCountLabel,
+                'monthlyTotalFormatted' => $calculator->formatMoney($monthlyTotal, $currency),
+                'monthlyFixedFormatted' => $calculator->formatMoney($monthlyFixedTotal, $currency),
+                'hasFixedCosts' => $monthlyFixedTotal > 0,
+                'monthlyHoursFormatted' => $calculator->formatHours($monthlyHours),
+                'workMonthPercent' => $workMonthPercent,
+                'hourlyRateFormatted' => $hourlyRateFormatted,
+                'hourlyRateNote' => $hourlyRateNote,
+                'freedomLabel' => $freedom['label'],
+                'freedomPercent' => $freedom['percent'],
+                'showLimitAlert' => $hoursOverLimit > 0,
+                'hoursOverLimitFormatted' => $calculator->formatHours($hoursOverLimit),
+                'hasRows' => $entryCount > 0,
+            ],
+        ];
     }
 
     private function showHistory(): void
@@ -164,7 +270,6 @@ class HistoryController extends AppController
             'selectedYear' => $year,
             'monthOptions' => self::MONTH_NAMES,
             'yearOptions' => $yearOptions,
-            'deleted' => isset($_GET['deleted']),
             'error' => $_GET['error'] ?? null,
         ]);
     }

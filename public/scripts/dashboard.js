@@ -83,6 +83,23 @@
       });
     };
 
+    const resetStats = () => {
+      if (statHours) statHours.textContent = "—";
+      if (statDays) statDays.textContent = "—";
+      if (statPercent) statPercent.textContent = "—";
+      if (statHoursBar) statHoursBar.style.width = "0%";
+      if (statDaysBar) statDaysBar.style.width = "0%";
+      if (statPercentBar) statPercentBar.style.width = "0%";
+    };
+
+    const resetCalculator = () => {
+      if (nameInput) nameInput.value = "";
+      if (priceInput) priceInput.value = "";
+      showHint("");
+      actionsSection?.setAttribute("hidden", "");
+      resetStats();
+    };
+
     const updateStats = (result) => {
       if (!result || !metrics) return;
 
@@ -136,6 +153,131 @@
       syncHiddenFields();
     };
 
+    const escapeHtml = (value) =>
+      String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+    const buildExpenseItem = (spending) => {
+      const li = document.createElement("li");
+      li.className = "app-expense-item";
+      li.innerHTML = `
+        <div class="app-expense-item__left">
+          <span class="app-expense-item__icon ${escapeHtml(spending.theme_class)} material-symbols-outlined" aria-hidden="true">${escapeHtml(spending.icon)}</span>
+          <div>
+            <p class="app-expense-item__name">${escapeHtml(spending.name)}</p>
+            <p class="app-expense-item__meta">${escapeHtml(spending.meta_label)}</p>
+          </div>
+        </div>
+        <div class="app-expense-item__right">
+          <p class="app-expense-item__amount">${escapeHtml(spending.amount_formatted)}</p>
+          <p class="app-expense-item__hours">${escapeHtml(spending.life_hours_label)} pracy</p>
+        </div>
+      `;
+      return li;
+    };
+
+    const prependSpending = (spending) => {
+      const recentSection = document.querySelector("[data-recent-spendings]");
+      if (!recentSection || !spending) return;
+
+      const emptyHint = recentSection.querySelector("[data-recent-empty]");
+      emptyHint?.remove();
+
+      let list = recentSection.querySelector(".app-expense-list");
+      if (!list) {
+        list = document.createElement("ul");
+        list.className = "app-expense-list";
+        recentSection.appendChild(list);
+      }
+
+      list.prepend(buildExpenseItem(spending));
+
+      while (list.children.length > 5) {
+        list.lastElementChild?.remove();
+      }
+    };
+
+    const updateSummary = (summary) => {
+      if (!summary) return;
+
+      document.querySelectorAll("[data-summary-total]").forEach((el) => {
+        el.textContent = summary.monthlyTotalFormatted;
+      });
+
+      document.querySelectorAll("[data-summary-hours]").forEach((el) => {
+        el.textContent = String(summary.monthlyHoursShort);
+      });
+
+      document.querySelectorAll("[data-summary-hours-formatted]").forEach((el) => {
+        el.textContent = summary.monthlyHoursFormatted;
+      });
+
+      document.querySelectorAll("[data-summary-fixed]").forEach((el) => {
+        if (summary.hasFixedCosts) {
+          el.textContent = summary.monthlyFixedFormatted;
+          el.closest("[data-summary-fixed-wrap]")?.removeAttribute("hidden");
+        } else {
+          el.closest("[data-summary-fixed-wrap]")?.setAttribute("hidden", "");
+        }
+      });
+
+      document.querySelectorAll("[data-summary-freedom-label]").forEach((el) => {
+        el.textContent = summary.freedomLabel;
+      });
+
+      document.querySelectorAll("[data-summary-freedom-bar]").forEach((el) => {
+        el.style.width = `${summary.freedomPercent}%`;
+      });
+
+      document.querySelectorAll("[data-summary-limit-alert]").forEach((el) => {
+        if (summary.showLimitAlert) {
+          const strong = el.querySelector("strong");
+          if (strong) {
+            strong.textContent = `${summary.hoursOverLimitFormatted}h`;
+          }
+          el.removeAttribute("hidden");
+        } else {
+          el.setAttribute("hidden", "");
+        }
+      });
+    };
+
+    const validateBeforeSubmit = () => {
+      syncHiddenFields();
+      const name = String(nameInput?.value ?? "").trim();
+      const price = parseFloat(String(priceInput?.value ?? "").replace(",", "."));
+      if (name === "" || !Number.isFinite(price) || price <= 0) {
+        return false;
+      }
+      return true;
+    };
+
+    const bindFetchForm = (form, successMessage) => {
+      form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!validateBeforeSubmit()) return;
+
+        await window.submitFormFetch(form, {
+          successMessage,
+          onSuccess: (data) => {
+            resetCalculator();
+            if (data.spending) {
+              prependSpending(data.spending);
+            }
+            updateSummary(data.summary);
+          },
+          onError: (data) => {
+            if (data.message) {
+              showHint(data.message);
+            }
+          },
+        });
+      });
+    };
+
     dashboardForm.addEventListener("click", (event) => {
       if (event.target.closest("[data-calc-btn]")) {
         event.preventDefault();
@@ -152,16 +294,14 @@
 
     iconSelect?.addEventListener("change", syncHiddenFields);
 
-    [spendingForm, fixedForm].forEach((form) => {
-      form?.addEventListener("submit", (event) => {
-        syncHiddenFields();
-        const name = String(nameInput?.value ?? "").trim();
-        const price = parseFloat(String(priceInput?.value ?? "").replace(",", "."));
-        if (name === "" || !Number.isFinite(price) || price <= 0) {
-          event.preventDefault();
-        }
-      });
-    });
+    bindFetchForm(
+      spendingForm,
+      "<p>Wydatek został zapisany.</p>"
+    );
+    bindFetchForm(
+      fixedForm,
+      "<p>Koszt stały został zapisany.</p>"
+    );
   };
 
   if (document.readyState === "loading") {

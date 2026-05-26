@@ -491,6 +491,72 @@ body.app-menu-scroll-lock {
 
 /* --- Settings --- */
 
+.app-success-popup {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.app-success-popup[hidden] {
+  display: none;
+}
+
+.app-success-popup__card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: min(calc(100vw - 2.5rem), 22rem);
+  padding: 1rem 1.25rem;
+  text-align: left;
+  background: var(--color-surface-container-high);
+  border: 1px solid var(--color-border-primary-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.app-success-popup--visible .app-success-popup__card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.app-success-popup__icon-wrap {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(20, 184, 165, 0.15);
+  border-radius: var(--radius-full);
+}
+
+.app-success-popup__icon {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.app-success-popup__message {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+}
+
+.app-success-popup__message p {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .app-success-popup {
+    right: 1.5rem;
+    bottom: 1.5rem;
+  }
+}
+
 .app-settings-banner {
   display: flex;
   align-items: flex-start;

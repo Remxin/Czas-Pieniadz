@@ -65,6 +65,75 @@ class AppController
         $this->redirectTo('/login');
     }
 
+    protected function wantsJson(): bool
+    {
+        if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+            return true;
+        }
+
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+
+        return str_contains($contentType, 'application/json');
+    }
+
+    protected function consumeJsonBody(): void
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+        if (!str_contains($contentType, 'application/json')) {
+            return;
+        }
+
+        $raw = file_get_contents('php://input');
+        if ($raw === false || trim($raw) === '') {
+            return;
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return;
+        }
+
+        $_POST = $decoded;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    protected function json(array $data, int $status = 200): never
+    {
+        http_response_code($status);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+        exit;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function requireAuthJson(): array
+    {
+        $payload = $this->getJwtPayload();
+        if ($payload === null) {
+            $this->json(['ok' => false, 'message' => 'Sesja wygasła. Zaloguj się ponownie.'], 401);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function requireCompleteMetricsJson(): array
+    {
+        $payload = $this->requireAuthJson();
+        $userId = $this->userIdFromPayload($payload);
+        if (!$this->userHasCompleteMetrics($userId)) {
+            $this->json(['ok' => false, 'message' => 'Uzupełnij dane w ustawieniach.'], 403);
+        }
+
+        return $payload;
+    }
+
     protected function getJwtPayload(): ?array
     {
         $token = $_COOKIE[$this->jwtCookieName()] ?? '';

@@ -6,6 +6,29 @@ if (settingsForm) {
   const daysInput = settingsForm.querySelector('[name="days"]');
   const currencySelect = settingsForm.querySelector('[name="currency"]');
   const incomeCurrencyTag = settingsForm.querySelector("[data-income-currency-tag]");
+  const setupBanner = document.querySelector("[data-settings-setup-banner]");
+
+  const showSettingsError = (message) => {
+    let banner = settingsForm.querySelector("[data-settings-fetch-error]");
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.className = "app-settings-banner app-settings-banner--error";
+      banner.setAttribute("role", "alert");
+      banner.dataset.settingsFetchError = "1";
+      banner.innerHTML = `
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <p></p>
+      `;
+      settingsForm.parentElement?.insertBefore(banner, settingsForm);
+    }
+    const textEl = banner.querySelector("p");
+    if (textEl) textEl.textContent = message;
+    banner.removeAttribute("hidden");
+  };
+
+  const hideSettingsError = () => {
+    settingsForm.querySelector("[data-settings-fetch-error]")?.setAttribute("hidden", "");
+  };
 
   const syncIncomeCurrencyTag = () => {
     if (incomeCurrencyTag && currencySelect) {
@@ -27,9 +50,9 @@ if (settingsForm) {
     currency: currencySelect?.value ?? "",
   });
 
-  const initial = snapshotForm();
+  let initial = snapshotForm();
 
-  const isSetupMode =
+  let isSetupMode =
     settingsForm.dataset.metricsIncomplete === "1" ||
     initial.income <= 0 ||
     initial.hours <= 0 ||
@@ -75,11 +98,34 @@ if (settingsForm) {
   settingsForm.addEventListener("input", updateSubmitState);
   settingsForm.addEventListener("change", updateSubmitState);
 
-  settingsForm.addEventListener("submit", (event) => {
+  settingsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    hideSettingsError();
+
     const state = snapshotForm();
     if (!fieldsValid(state) || (!isSetupMode && !hasChanges(state))) {
-      event.preventDefault();
+      return;
     }
+
+    await window.submitFormFetch(settingsForm, {
+      successMessage: "<p>Zapisano zmiany.</p>",
+      onSuccess: (data) => {
+        initial = snapshotForm();
+        isSetupMode = false;
+        settingsForm.dataset.metricsIncomplete = "0";
+
+        if (data.metricsIncomplete === false) {
+          setupBanner?.setAttribute("hidden", "");
+        }
+
+        updateSubmitState();
+      },
+      onError: (data) => {
+        if (data.message) {
+          showSettingsError(data.message);
+        }
+      },
+    });
   });
 
   syncIncomeCurrencyTag();

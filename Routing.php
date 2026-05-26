@@ -19,6 +19,14 @@ class Routing {
             "controller" => "SecurityController",
             "action" => "logout"
         ],
+        "logout/all" => [
+            "controller" => "SecurityController",
+            "action" => "logoutAll"
+        ],
+        "auth/refresh" => [
+            "controller" => "SecurityController",
+            "action" => "refresh"
+        ],
         "dashboard" => [
             "controller" => "DashboardController",
             "action" => "index"
@@ -86,7 +94,17 @@ class Routing {
         else if ($path === 'logout') {
             $routeKey = 'logout';
             $matched = true;
-        } 
+        }
+        // Handle /logout/all
+        else if ($path === 'logout/all') {
+            $routeKey = 'logout/all';
+            $matched = true;
+        }
+        // Handle /auth/refresh
+        else if ($path === 'auth/refresh') {
+            $routeKey = 'auth/refresh';
+            $matched = true;
+        }
         // Handle /
         else if ($path === '') {
             $routeKey = '';

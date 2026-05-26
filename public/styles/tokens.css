@@ -51,6 +51,7 @@
   width: var(--logo-width, 180px);
   max-width: 100%;
   height: auto;
+  aspect-ratio: 500 / 150;
 }
 
 .app-logo--header {

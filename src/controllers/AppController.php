@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../services/JwtService.php';
+require_once __DIR__ . '/../services/AuthTokenService.php';
 require_once __DIR__ . '/../repositories/UserMetricsRepository.php';
 require_once __DIR__ . '/../repositories/UsersRepository.php';
 
@@ -52,11 +52,7 @@ class AppController
 
     protected function clearAuthCookie(): void
     {
-        setcookie(
-            $this->jwtCookieName(),
-            '',
-            $this->authCookieOptions(time() - 3600)
-        );
+        AuthTokenService::getInstance()->clearAuthCookies();
     }
 
     protected function redirectToLogin(): void
@@ -136,21 +132,7 @@ class AppController
 
     protected function getJwtPayload(): ?array
     {
-        $token = $_COOKIE[$this->jwtCookieName()] ?? '';
-        if ($token === '') {
-            return null;
-        }
-        try {
-            $payload = JwtService::decode($token);
-        } catch (RuntimeException) {
-            return null;
-        }
-
-        if (!is_array($payload) || (int) ($payload['sub'] ?? 0) <= 0) {
-            return null;
-        }
-
-        return $payload;
+        return AuthTokenService::getInstance()->resolveAuthenticatedPayload();
     }
 
     /**

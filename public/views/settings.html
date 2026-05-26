@@ -211,10 +211,12 @@
             <p>Wyloguj się ze wszystkich urządzeń lub trwale usuń swoje konto.</p>
           </div>
           <div class="app-account-actions__buttons">
-            <a class="app-btn-outline" href="/logout">
-              <span class="material-symbols-outlined" aria-hidden="true">logout</span>
-              Wyloguj się
-            </a>
+            <form method="POST" action="/logout/all">
+              <button class="app-btn-outline" type="submit">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                Wyloguj ze wszystkich urządzeń
+              </button>
+            </form>
             <button class="app-btn-danger" type="button">
               <span class="material-symbols-outlined" aria-hidden="true">delete_forever</span>
               Usuń konto

@@ -31,6 +31,36 @@
     return new URL(action, window.location.origin).href;
   };
 
+  const refreshSession = async () => {
+    const response = await fetch("/auth/refresh", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    });
+
+    if (response.status !== 200) {
+      return false;
+    }
+
+    const data = await parseJsonResponse(response);
+    return data.ok === true;
+  };
+
+  const postJson = async (url, payload) =>
+    fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
   window.submitFormFetch = async (form, options = {}) => {
     const {
       onSuccess,
@@ -50,15 +80,14 @@
       const url = resolveFormUrl(form);
       const payload = formDataToObject(form);
 
-      const response = await fetch(url, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      let response = await postJson(url, payload);
+
+      if (response.status === 401) {
+        const refreshed = await refreshSession();
+        if (refreshed) {
+          response = await postJson(url, payload);
+        }
+      }
 
       if (response.status === 401) {
         window.location.href = "/login";

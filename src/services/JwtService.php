@@ -12,9 +12,16 @@ class JwtService
         return JWT_SECRET;
     }
 
-    private static function ttlSeconds(): int
+    private static function accessTtlSeconds(): int
     {
-        return defined('JWT_TTL') ? (int) JWT_TTL : 604800;
+        if (defined('JWT_ACCESS_TTL')) {
+            return (int) JWT_ACCESS_TTL;
+        }
+        if (defined('JWT_TTL')) {
+            return (int) JWT_TTL;
+        }
+
+        return 900;
     }
 
     private static function base64UrlEncode(string $data): string
@@ -33,13 +40,13 @@ class JwtService
     }
 
     /**
-     * @param array<string, mixed> $payload Must include claims you need, e.g. sub, email
+     * @param array<string, mixed> $payload Must include claims you need, e.g. sub, email, sid
      */
-    public static function encode(array $payload): string
+    public static function encode(array $payload, ?int $ttlSeconds = null): string
     {
         $now = time();
         $payload['iat'] = $now;
-        $payload['exp'] = $now + self::ttlSeconds();
+        $payload['exp'] = $now + ($ttlSeconds ?? self::accessTtlSeconds());
 
         $header = ['alg' => 'HS256', 'typ' => 'JWT'];
         $headerEncoded = self::base64UrlEncode(json_encode($header, JSON_UNESCAPED_SLASHES));

@@ -1,7 +1,8 @@
 <?php
 
 require_once 'AppController.php';
-require_once __DIR__.'/../repositories/UsersRepository.php';
+require_once __DIR__ . '/../repositories/UsersRepository.php';
+require_once __DIR__ . '/../services/AuthTokenService.php';
 
 class SecurityController extends AppController {
 
@@ -36,27 +37,43 @@ class SecurityController extends AppController {
             return $this->render('login', ['messages' => 'Wrong password']);
         }
 
-        $jwt = JwtService::encode([
-            'sub' => (string) $user['id'],
-            'email' => $user['email'],
-        ]);
-
-        setcookie(
-            $this->jwtCookieName(),
-            $jwt,
-            $this->authCookieOptions(time() + (defined('JWT_TTL') ? (int) JWT_TTL : 604800))
+        $rememberMe = !empty($_POST['remember_me']);
+        $auth = AuthTokenService::getInstance();
+        $issued = $auth->issueTokens((int) $user['id'], (string) $user['email'], $rememberMe);
+        $auth->setAuthCookies(
+            $issued['accessJwt'],
+            $issued['refreshToken'],
+            $issued['refreshExpires']
         );
 
         $this->redirectAfterAuth((int) $user['id']);
     }
 
     public function logout() {
-        setcookie(
-            $this->jwtCookieName(),
-            '',
-            $this->authCookieOptions(time() - 3600)
-        );
+        AuthTokenService::getInstance()->revokeCurrentSession();
         $this->redirectTo('/login');
+    }
+
+    public function logoutAll() {
+        if (!$this->isPost()) {
+            $this->redirectTo('/settings');
+        }
+
+        $payload = $this->requireAuth();
+        $userId = $this->userIdFromPayload($payload);
+        AuthTokenService::getInstance()->revokeAllSessionsForUser($userId);
+        $this->redirectTo('/login');
+    }
+
+    public function refresh() {
+        $this->consumeJsonBody();
+        $payload = AuthTokenService::getInstance()->tryRefreshFromCookie();
+        if ($payload === null) {
+            AuthTokenService::getInstance()->clearAuthCookies();
+            $this->json(['ok' => false, 'message' => 'Sesja wygasła. Zaloguj się ponownie.'], 401);
+        }
+
+        $this->json(['ok' => true]);
     }
 
     public function register() {

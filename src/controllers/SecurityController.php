@@ -3,8 +3,15 @@
 require_once 'AppController.php';
 require_once __DIR__ . '/../repositories/UsersRepository.php';
 require_once __DIR__ . '/../services/AuthTokenService.php';
+require_once __DIR__ . '/../services/CsrfService.php';
+require_once __DIR__ . '/../services/LoginAuditLogger.php';
 
 class SecurityController extends AppController {
+
+    private const LOGIN_FAILED_MESSAGE = 'Niepoprawny adres e-mail lub hasło.';
+
+    /** Bcrypt dummy hash – stały czas weryfikacji gdy użytkownik nie istnieje. */
+    private const DUMMY_PASSWORD_HASH = '$2y$10$usesomesillystringfore7hnbRJHxXVLEJaGFtj8FE0Ru0';
 
     public function login() {
         if (!$this->isPost()) {
@@ -17,28 +24,40 @@ class SecurityController extends AppController {
                 }
                 $this->clearAuthCookie();
             }
-            return $this->render("login");
+            return $this->renderLogin();
         }
 
-        $email = $_POST["email"] ?? '';
-        $password = $_POST["password"] ?? '';
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $csrfToken = $_POST['csrf_token'] ?? null;
 
-        if (empty($email) || empty($password)) {
-            return $this->render('login', ['messages' => 'Fill all fields']);
+        if (!CsrfService::getInstance()->validateToken($csrfToken)) {
+            LoginAuditLogger::logFailedAttempt($email, 'csrf_invalid');
+            return $this->renderLogin(['messages' => 'Nieprawidłowe żądanie. Spróbuj ponownie.']);
+        }
+
+        if ($email === '' || $password === '') {
+            LoginAuditLogger::logFailedAttempt($email, 'empty_fields');
+            return $this->renderLogin(['messages' => 'Wypełnij wszystkie pola.']);
         }
 
         $usersRepository = UsersRepository::getInstance();
-        $user = $usersRepository->getUserByEmail($_POST['email']);
-        if (!$user) {
-            return $this->render("login", ["messages" => "User not found"]);
+        $user = $usersRepository->getUserByEmail($email);
+
+        if ($user === null) {
+            password_verify($password, self::DUMMY_PASSWORD_HASH);
+            LoginAuditLogger::logFailedAttempt($email, 'user_not_found');
+            return $this->renderLogin(['messages' => self::LOGIN_FAILED_MESSAGE]);
         }
-        
+
         if (!password_verify($password, $user['password'])) {
-            return $this->render('login', ['messages' => 'Wrong password']);
+            LoginAuditLogger::logFailedAttempt($email, 'wrong_password');
+            return $this->renderLogin(['messages' => self::LOGIN_FAILED_MESSAGE]);
         }
 
         $rememberMe = !empty($_POST['remember_me']);
         $auth = AuthTokenService::getInstance();
+        $auth->revokeCurrentSession();
         $issued = $auth->issueTokens((int) $user['id'], (string) $user['email'], $rememberMe);
         $auth->setAuthCookies(
             $issued['accessJwt'],
@@ -118,16 +137,25 @@ class SecurityController extends AppController {
     }
 
     /**
+     * @param array<string, mixed> $variables
+     */
+    private function renderLogin(array $variables = []): void
+    {
+        $variables['csrfToken'] = CsrfService::getInstance()->generateToken();
+        $this->render('login', $variables);
+    }
+
+    /**
      * @return non-empty-string|null Error message, or null if valid.
      */
     private function validatePasswordStrength(string $password): ?string
     {
         $len = strlen($password);
-        if ($len < 4) {
-            return 'Password must be at least 4 characters long.';
+        if ($len < 8) {
+            return 'Hasło musi mieć co najmniej 8 znaków.';
         }
         if ($len > 72) {
-            return 'Password must be at most 72 characters long.';
+            return 'Hasło może mieć maksymalnie 72 znaki.';
         }
         return null;
     }
